@@ -5,7 +5,7 @@
 ## I'm a Student, a Developer, and a Chess Player!!
 
 - 🔭 I’m currently working on building a Fulstack E-Commerce website using the MERN stack.
-- 🌱 I’m currently learning  Javascript, React, Node, Express andJava
+- 🌱 I’m currently learning  Javascript, React, Node, Express and Java
 - 👯 I’m looking to collaborate with other develoopers
 - 🥅 2020 Goals: Contribute more to Open Source projects
 - ⚡ Fun fact: I love Calisthenics and Motorcycles
