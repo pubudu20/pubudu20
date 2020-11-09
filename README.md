@@ -4,8 +4,8 @@
 
 ## I'm a Student, a Developer, and a Chess Player!!
 
-- 🔭 I just launched my first course: [Become A VS Code SuperHero!][course]!
-- 🌱 I’m currently Javascript, React , Salesforce and JAVA 🤣
+- 🔭 I’m currently working on building a Fulstack E-Commerce website using the MERN stack.
+- 🌱 I’m currently learning  Javascript, React , Node and Express 🤣
 - 👯 I’m looking to collaborate with other develoopers
 - 🥅 2020 Goals: Contribute more to Open Source projects
 - ⚡ Fun fact: I love Calisthenics and Motorcycles
