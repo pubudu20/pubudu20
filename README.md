@@ -10,7 +10,7 @@
 - 🥅 2020 Goals: Contribute more to Open Source projects
 - ⚡ Fun fact: I love Calisthenics and Motorcycles
 
-[<img align="left" alt="pubudu20.com" width="22px" src="https://raw.githubusercontent.com/iconic/open-iconic/master/svg/globe.svg" />][website]
+[<img align="left" alt="pubudu20.com" width="22px" src="https://pubudu20.github.io/iconic/open-iconic/master/svg/globe.svg" />][website]
 [<img align="left" alt="codeSTACKr | LinkedIn" width="22px" src="https://cdn.jsdelivr.net/npm/simple-icons@v3/icons/linkedin.svg" />][linkedin]
 
 <!--
