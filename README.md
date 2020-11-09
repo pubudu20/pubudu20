@@ -36,7 +36,7 @@
 
 
 [website]: https://pubudu20.github.io
-[linkedin]: https://www.linkedin.com/in/pubudu-palihakkara
+[linkedin]: https://www.linkedin.com/in/pubudu-palihakkara-0b783a15a/
 
 <!--
 **pubudu20/pubudu20** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
