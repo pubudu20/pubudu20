@@ -38,7 +38,7 @@
 [website]: https://pubudu20.github.io
 [linkedin]: https://www.linkedin.com/in/pubudu-palihakkara-0b783a15a/
 
-<img width="60%" src="https://github-readme-stats.vercel.app/api?username=DeclanChirush&show_icons=true&include_all_commits=true&theme=chartreuse-dark" />
+<img width="60%" src="https://github-readme-stats.vercel.app/api?username=pubudu20&show_icons=true&include_all_commits=true&theme=chartreuse-dark" />
 
 <!--
 **pubudu20/pubudu20** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
