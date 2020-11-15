@@ -41,6 +41,10 @@
 
 <img width="60%" src="https://github-readme-stats.vercel.app/api?username=pubudu20&show_icons=true&include_all_commits=true&theme=chartreuse-dark" />
 
+<img width="50%" src="https://github-readme-stats.anuraghazra1.vercel.app/api/top-langs/?username=pubudu20&layout=compact&theme=chartreuse-dark" />
+
+![Visitor Count](https://profile-counter.glitch.me/{pubudu20}/count.svg)
+
 <!--
 **pubudu20/pubudu20** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
 
