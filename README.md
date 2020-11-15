@@ -43,6 +43,7 @@
 
 <img width="50%" src="https://github-readme-stats.anuraghazra1.vercel.app/api/top-langs/?username=pubudu20&layout=compact&theme=chartreuse-dark" />
 
+**Visitors Count** 
 ![Visitor Count](https://profile-counter.glitch.me/{pubudu20}/count.svg)
 
 <!--
