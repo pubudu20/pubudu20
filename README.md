@@ -37,6 +37,7 @@
 
 [website]: https://pubudu20.github.io
 [linkedin]: https://www.linkedin.com/in/pubudu-palihakkara-0b783a15a/
+<br />
 
 <img width="60%" src="https://github-readme-stats.vercel.app/api?username=pubudu20&show_icons=true&include_all_commits=true&theme=chartreuse-dark" />
 
