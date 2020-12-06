@@ -4,6 +4,8 @@
 
 ## I'm a Student, a Developer, and a Chess Player!!
 
+![enter image description here](https://github.com/Dilshan97/Dilshan97/blob/master/img/coder1.gif)
+
 - 🔭 I’m currently working on building a Fulstack E-Commerce website using the MERN stack.
 - 🌱 I’m currently learning  Javascript, React, Node, Express and Java
 - 👯 I’m looking to collaborate with other develoopers
