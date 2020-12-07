@@ -4,7 +4,7 @@
 
 ## I'm a Student, a Developer, and a Chess Player!!
 
-![enter image description here](https://github.com/pubudu20/pubudu20/img/coding-freak.gif)
+![enter image description here](https://github.com/pubudu20/pubudu20/https://github.com/pubudu20/pubudu20/blob/main/img/coding-freak.gif)
 
 - 🔭 I’m currently working on building a Fulstack E-Commerce website using the MERN stack.
 - 🌱 I’m currently learning  Javascript, React, Node, Express and Java
