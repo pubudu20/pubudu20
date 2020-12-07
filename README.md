@@ -16,6 +16,11 @@
 
 - ⚡ Fun fact: I love Calisthenics and Motorcycles
 
+### Connect with me:
+
+[<img align="left" alt="codeSTACKr.com" width="22px" src="https://raw.githubusercontent.com/iconic/open-iconic/master/svg/globe.svg" />][website]
+[<img align="left" alt="codeSTACKr | LinkedIn" width="22px" src="https://cdn.jsdelivr.net/npm/simple-icons@v3/icons/linkedin.svg" />][linkedin]
+
 ### Languages and Tools:
 
 <img align="left" alt="Visual Studio Code" width="26px" src="https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/visual-studio-code/visual-studio-code.png" />
@@ -35,19 +40,21 @@
 <br />
 <br />
 
-### Connect with me:
 
-[<img align="left" alt="codeSTACKr.com" width="22px" src="https://raw.githubusercontent.com/iconic/open-iconic/master/svg/globe.svg" />][website]
-[<img align="left" alt="codeSTACKr | LinkedIn" width="22px" src="https://cdn.jsdelivr.net/npm/simple-icons@v3/icons/linkedin.svg" />][linkedin]
 
 
 [website]: https://pubudu20.github.io
 [linkedin]: https://www.linkedin.com/in/pubudu-palihakkara-0b783a15a/
 <br />
 
-<img width="60%" src="https://github-readme-stats.vercel.app/api?username=pubudu20&show_icons=true&include_all_commits=true" />
 
-<img width="50%" src="https://github-readme-stats.anuraghazra1.vercel.app/api/top-langs/?username=pubudu20&layout=compact" />
+![Pubudu's github stats](https://github-readme-stats.vercel.app/api?username=pubudu20&show_icons=true&include_all_commits=true)
+![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=pubudu20&layout=compact)
+
+<!--<img width="60%" src="https://github-readme-stats.vercel.app/api?username=pubudu20&show_icons=true&include_all_commits=true" />-->
+
+<!--<img width="50%" src="https://github-readme-stats.anuraghazra1.vercel.app/api/top-langs/?username=pubudu20&layout=compact" />
+-->
 
 **Visitors Count** <br />
 ![Visitor Count](https://profile-counter.glitch.me/{pubudu20}/count.svg)
