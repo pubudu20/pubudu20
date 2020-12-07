@@ -42,9 +42,6 @@
 <br />
 <br />
 
-
-
-
 [website]: https://pubudu20.github.io
 [linkedin]: https://www.linkedin.com/in/pubudu-palihakkara-0b783a15a/
 <br />
