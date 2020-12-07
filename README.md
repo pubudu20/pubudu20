@@ -1,4 +1,4 @@
-### Hi there, I'm Pubudu - a Programmer 👋
+### Hi there, I'm Pubudu - a Programmer <img src="https://media.giphy.com/media/hvRJCLFzcasrR4ia7z/giphy.gif" width="25px">
 
 [![Website](https://img.shields.io/website?label=pubudu20.com&style=for-the-badge&url=https%3A%2F%2Fcodestackr.com)](https://pubudu20.github.io/)
 
@@ -7,9 +7,13 @@
 ![enter image description here](https://github.com/pubudu20/pubudu20/blob/main/img/coding-freak.gif)
 
 - 🔭 I’m currently working on building a Fulstack E-Commerce website using the MERN stack.
+
 - 🌱 I’m currently learning  Javascript, React, Node, Express and Java
+
 - 👯 I’m looking to collaborate with other develoopers
+
 - 🥅 2020 Goals: Contribute more to Open Source projects
+
 - ⚡ Fun fact: I love Calisthenics and Motorcycles
 
 ### Languages and Tools:
@@ -41,7 +45,7 @@
 [linkedin]: https://www.linkedin.com/in/pubudu-palihakkara-0b783a15a/
 <br />
 
-<img width="60%" src="https://github-readme-stats.vercel.app/api?username=pubudu20&show_icons=true&include_all_commits=true&theme=chartreuse-dark" />
+<img width="60%" src="https://github-readme-stats.vercel.app/api?username=pubudu20&show_icons=true&include_all_commits=true&hide_border=true" />
 
 <img width="50%" src="https://github-readme-stats.anuraghazra1.vercel.app/api/top-langs/?username=pubudu20&layout=compact&theme=chartreuse-dark" />
 
@@ -51,7 +55,7 @@
 <!--
 **pubudu20/pubudu20** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
 
-Here are some ideas to get you started:
+Here are some ideas to get you started:👋
 
 - 🔭 I’m currently working on ...
 - 🌱 I’m currently learning ...
