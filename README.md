@@ -45,7 +45,7 @@
 [linkedin]: https://www.linkedin.com/in/pubudu-palihakkara-0b783a15a/
 <br />
 
-<img width="60%" src="https://github-readme-stats.vercel.app/api?username=pubudu20&show_icons=true&include_all_commits=true&hide_border=true" />
+<img width="60%" src="https://github-readme-stats.vercel.app/api?username=pubudu20&show_icons=true&include_all_commits=true" />
 
 <img width="50%" src="https://github-readme-stats.anuraghazra1.vercel.app/api/top-langs/?username=pubudu20&layout=compact" />
 
@@ -57,6 +57,8 @@
 
 Here are some ideas to get you started:👋
 &theme=chartreuse-dark
+
+&hide_border=true
 - 🔭 I’m currently working on ...
 - 🌱 I’m currently learning ...
 - 👯 I’m looking to collaborate on ...
