@@ -1,14 +1,27 @@
 <div align="center">
 <img align="center" alt="GIF" height="250px" src="https://media.giphy.com/media/du3J3cXyzhj75IOgvA/giphy.gif" />
 
-# Hi , I'm Pubudu <img src="https://media.giphy.com/media/hvRJCLFzcasrR4ia7z/giphy.gif" width="25px">  [![Website](https://img.shields.io/website?label=pubudu20.com&style=for-the-badge&url=https%3A%2F%2Fcodestackr.com)](https://pubudu20.github.io/) [<img align="left" alt="codeSTACKr | LinkedIn" width="22px" src="https://cdn.jsdelivr.net/npm/simple-icons@v3/icons/linkedin.svg" />][linkedin]
+# Hi , I'm Pubudu <img src="https://media.giphy.com/media/hvRJCLFzcasrR4ia7z/giphy.gif" width="25px">  [![Website](https://img.shields.io/website?label=pubudu20.com&style=for-the-badge&url=https%3A%2F%2Fcodestackr.com)](https://pubudu20.github.io/) 
 
 ## I'm a Student, a Developer, and a Chess Player!!
 
 
 ![enter image description here](https://github.com/pubudu20/pubudu20/blob/main/img/coding-freak.gif)
 
+![Pubudu's github stats](https://github-readme-stats.vercel.app/api?username=pubudu20&show_icons=true&include_all_commits=true&hide_border=true)
+![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=pubudu20&layout=compact)
+
+<!--<img width="60%" src="https://github-readme-stats.vercel.app/api?username=pubudu20&show_icons=true&include_all_commits=true" />-->
+
+<!--<img width="50%" src="https://github-readme-stats.anuraghazra1.vercel.app/api/top-langs/?username=pubudu20&layout=compact" />
+-->
+
+**Visitors Count** <br />
+![Visitor Count](https://profile-counter.glitch.me/{pubudu20}/count.svg)
+
 </div>
+
+<br />
 
 
 
@@ -25,6 +38,7 @@
 ### Connect with me:
 
 [<img align="left" alt="codeSTACKr.com" width="22px" src="https://raw.githubusercontent.com/iconic/open-iconic/master/svg/globe.svg" />][website]
+[<img align="left" alt="codeSTACKr | LinkedIn" width="22px" src="https://cdn.jsdelivr.net/npm/simple-icons@v3/icons/linkedin.svg" />][linkedin]
 
 
 <br />
@@ -53,16 +67,7 @@
 <br />
 
 
-![Pubudu's github stats](https://github-readme-stats.vercel.app/api?username=pubudu20&show_icons=true&include_all_commits=true&hide_border=true)
-![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=pubudu20&layout=compact)
 
-<!--<img width="60%" src="https://github-readme-stats.vercel.app/api?username=pubudu20&show_icons=true&include_all_commits=true" />-->
-
-<!--<img width="50%" src="https://github-readme-stats.anuraghazra1.vercel.app/api/top-langs/?username=pubudu20&layout=compact" />
--->
-
-**Visitors Count** <br />
-![Visitor Count](https://profile-counter.glitch.me/{pubudu20}/count.svg)
 
 <!--
 **pubudu20/pubudu20** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
