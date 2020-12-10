@@ -8,6 +8,14 @@
 
 ![enter image description here](https://github.com/pubudu20/pubudu20/blob/main/img/coding-freak.gif)
 
+- 🔭 I’m currently working on building a Fulstack E-Commerce website using the MERN stack.
+
+- 🌱 I’m currently learning  Javascript, React, Node, Express and Java
+
+- 👯 I’m looking to collaborate with other develoopers
+
+- 🥅 2021 Goals: Contribute more to Open Source projects
+
 ![Pubudu's github stats](https://github-readme-stats.vercel.app/api?username=pubudu20&show_icons=true&include_all_commits=true&hide_border=true)
 ![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=pubudu20&layout=compact)
 
@@ -24,12 +32,6 @@
 <br />
 
 
-
-- 🌱 I’m currently learning  Javascript, React, Node, Express and Java
-
-- 👯 I’m looking to collaborate with other develoopers
-
-- 🥅 2021 Goals: Contribute more to Open Source projects
 
 
 
@@ -75,7 +77,7 @@
 Here are some ideas to get you started:👋
 &theme=chartreuse-dark
 
-- 🔭 I’m currently working on building a Fulstack E-Commerce website using the MERN stack.
+
 
 - ⚡ Fun fact: I love Calisthenics and Motorcycles
 &hide_border=true
