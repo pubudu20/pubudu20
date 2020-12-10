@@ -1,5 +1,7 @@
 ### Hi there, I'm Pubudu - a Programmer <img src="https://media.giphy.com/media/hvRJCLFzcasrR4ia7z/giphy.gif" width="25px">
 
+![Hi, I'm Pubudu 👋 I'm a 🚀 French developer 🚀 I ❤️ Happy Hardcore ❤️](https://github.com/matyo91/matyo91/raw/main/assets/github.gif)
+
 [![Website](https://img.shields.io/website?label=pubudu20.com&style=for-the-badge&url=https%3A%2F%2Fcodestackr.com)](https://pubudu20.github.io/)
 
 ## I'm a Student, a Developer, and a Chess Player!!
