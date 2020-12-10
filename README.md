@@ -1,7 +1,7 @@
 <div align="center">
 <img align="center" alt="GIF" height="250px" src="https://media.giphy.com/media/du3J3cXyzhj75IOgvA/giphy.gif" />
 
-# Hi , I'm Pubudu <img src="https://media.giphy.com/media/hvRJCLFzcasrR4ia7z/giphy.gif" width="25px">  [![Website](https://img.shields.io/website?label=pubudu20.com&style=for-the-badge&url=https%3A%2F%2Fcodestackr.com)](https://pubudu20.github.io/)
+# Hi , I'm Pubudu <img src="https://media.giphy.com/media/hvRJCLFzcasrR4ia7z/giphy.gif" width="25px">  [![Website](https://img.shields.io/website?label=pubudu20.com&style=for-the-badge&url=https%3A%2F%2Fcodestackr.com)](https://pubudu20.github.io/) [<img align="left" alt="codeSTACKr | LinkedIn" width="22px" src="https://cdn.jsdelivr.net/npm/simple-icons@v3/icons/linkedin.svg" />][linkedin]
 
 ## I'm a Student, a Developer, and a Chess Player!!
 
@@ -10,7 +10,7 @@
 
 </div>
 
-- 🔭 I’m currently working on building a Fulstack E-Commerce website using the MERN stack.
+
 
 - 🌱 I’m currently learning  Javascript, React, Node, Express and Java
 
@@ -18,14 +18,14 @@
 
 - 🥅 2021 Goals: Contribute more to Open Source projects
 
-- ⚡ Fun fact: I love Calisthenics and Motorcycles
+
 
 
 
 ### Connect with me:
 
 [<img align="left" alt="codeSTACKr.com" width="22px" src="https://raw.githubusercontent.com/iconic/open-iconic/master/svg/globe.svg" />][website]
-[<img align="left" alt="codeSTACKr | LinkedIn" width="22px" src="https://cdn.jsdelivr.net/npm/simple-icons@v3/icons/linkedin.svg" />][linkedin]
+
 
 <br />
 
@@ -70,6 +70,9 @@
 Here are some ideas to get you started:👋
 &theme=chartreuse-dark
 
+- 🔭 I’m currently working on building a Fulstack E-Commerce website using the MERN stack.
+
+- ⚡ Fun fact: I love Calisthenics and Motorcycles
 &hide_border=true
 - 🔭 I’m currently working on ...
 - 🌱 I’m currently learning ...
