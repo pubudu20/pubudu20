@@ -11,7 +11,7 @@
 
 - 👯 I’m looking to collaborate with other develoopers
 
-- 🥅 2020 Goals: Contribute more to Open Source projects
+- 🥅 2021 Goals: Contribute more to Open Source projects
 
 - ⚡ Fun fact: I love Calisthenics and Motorcycles
 
