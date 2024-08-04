@@ -10,9 +10,8 @@
 ![enter image description here](https://github.com/pubudu20/pubudu20/blob/main/img/coding-freak.gif)
 <br />
 
-## I'm a Salesforce Admin, a Developer, and a Chess Player!!
+## I'm a Salesforce Administrator and a Developer!!
 <br />
-
 - 🔭 I’m currently working on [Cloud Code Academy](https://cloudcodeacademy.com).
 
 - 🌱 I’m currently learning  Apex, Integrations, LWC, SFDX and SOQL
@@ -22,6 +21,23 @@
 - 🥅 2024 Goals: Contribute more to Open Source projects
 
 <br />
+
+# ☁ Salesforce Credentials
+<table width="100%" style="border:0px;">
+  <tr style="border:0px;" >
+    <td align="center" style="border:0px;">
+        <img src="https://github.com/pubudu20/pubudu20/blob/main/img/Administrator.png" alt="Administrator" style="width: 100px;"/>
+        <br>
+        <b>Administrator</b>
+    </td>
+    <td align="center" style="border:0px;"><img src="https://github.com/pubudu20/pubudu20/blob/main/img/Platform-App-Builder.png" alt="Platform App Builder" style="width: 100px;"/><br><b>Platform App Builder</b></td>
+    <td align="center" style="border:0px;"><img src="https://github.com/pubudu20/pubudu20/blob/main/img/Associate.png" alt="Associate" style="width: 100px;"/><br><b>Associate</b></td>
+    <td align="center" style="border:0px;"><img src="https://github.com/pubudu20/pubudu20/blob/main/img/5304e3a71e4f3f6150cc794b2febc9b8_badge.webp" alt="Admin Super Set" style="width: 100px;"/><br><b>Admin Super Set</b></td>    
+    <td align="center" style="border:0px;"><img src="https://github.com/pubudu20/pubudu20/blob/main/img/f85d88740c4ba2c2bf88cbbfd2e7e3e8_badge.webp" alt="Flow Superbadge" style="width: 100px;"/><br><b>Flow Superbadge</b></td>
+    <td align="center" style="border:0px;"><img src="https://github.com/pubudu20/pubudu20/blob/main/img/2c0777d1847dfb7dcb0430a20b7c1538_badge.webp" alt="App Customization Specialist" style="width: 100px;"/><br><b>App Customization Specialist</b></td>
+    
+  </tr>
+</table>
 
 # ⚙ Salesforce Technologies
 <table width="100%" style="border:0px;">
@@ -35,22 +51,6 @@
     <td align="center" style="border:0px;"><img src="https://res.cloudinary.com/hy4kyit2a/f_auto,fl_lossy,q_70/learn/modules/lightning-web-components-basics/5cec7279d13ac36ab5ddbffae3035337_badge.png" alt="LWC" style="width: 100px;"/><br><b>LWC</b></td>
     <td align="center" style="border:0px;"><img src="https://res.cloudinary.com/hy4kyit2a/f_auto,fl_lossy,q_70/learn/projects/quickstart-vscode-salesforce/a884f9ae6802649bf19065787ec0bb29_badge.png" alt="SFDX" style="width: 100px;"/><br><b>SFDX</b></td>
     <td align="center" style="border:0px;"><img src="https://res.cloudinary.com/hy4kyit2a/f_auto,fl_lossy,q_70/learn/modules/soql-for-admins/04607670444dbbe5aac7e77bc03c4fd1_badge.png" alt="SOQL" style="width: 100px;"/><br><b>SOQL</b></td>
-    <td align="center" style="border:0px;"><img src="https://developer.salesforce.com/resource/images/trailhead/badges/modules/trailhead_module_performance-troubleshooting-in-lwc.png" alt="Testing" style="width: 100px;"/><br><b>Testing</b></td>
-  </tr>
-</table>
-
-# ☁ Salesforce Credentials
-<table width="100%" style="border:0px;">
-  <tr style="border:0px;" >
-    <td align="center" style="border:0px;">
-        <img src="https://github.com/pubudu20/pubudu20/blob/main/img/Administrator.png" alt="Administrator" style="width: 100px;"/>
-        <br>
-        <b>Administrator</b>
-    </td>
-    <td align="center" style="border:0px;"><img src="https://github.com/pubudu20/pubudu20/blob/main/img/Platform-App-Builder.png" alt="Platform App Builder" style="width: 100px;"/><br><b>Platform App Builder</b></td>
-    <td align="center" style="border:0px;"><img src="https://github.com/pubudu20/pubudu20/blob/main/img/Associate.png" alt="Associate" style="width: 100px;"/><br><b>Associate</b></td>
-    <td align="center" style="border:0px;"><img src="https://github.com/pubudu20/pubudu20/blob/main/img/5304e3a71e4f3f6150cc794b2febc9b8_badge.webp" alt="Admin Super Set" style="width: 100px;"/><br><b>Admin Super Set</b></td>
-    <td align="center" style="border:0px;"><img src="https://github.com/pubudu20/pubudu20/blob/main/img/f85d88740c4ba2c2bf88cbbfd2e7e3e8_badge.webp" alt="Flow Fundamentals Superbadge" style="width: 100px;"/><br><b>Flow Fundamentals Superbadge</b></td>
     <td align="center" style="border:0px;"><img src="https://developer.salesforce.com/resource/images/trailhead/badges/modules/trailhead_module_performance-troubleshooting-in-lwc.png" alt="Testing" style="width: 100px;"/><br><b>Testing</b></td>
   </tr>
 </table>
