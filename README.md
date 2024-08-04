@@ -11,7 +11,6 @@
 
 ## I'm a Student, a Developer, and a Chess Player!!
 
-
 # ⚙ Salesforce Technologies
 <table width="100%" style="border:0px;">
   <tr style="border:0px;" >
@@ -27,6 +26,15 @@
     <td align="center" style="border:0px;"><img src="https://developer.salesforce.com/resource/images/trailhead/badges/modules/trailhead_module_performance-troubleshooting-in-lwc.png" alt="Testing" style="width: 100px;"/><br><b>Testing</b></td>
   </tr>
 </table>
+
+# ☁ Salesforce Credentials
+
+<div align="center">
+  <img src="https://drm.file.force.com/servlet/servlet.ImageServer?id=0153k00000A5Mty&oid=00DF0000000gZsu&lastMod=1617268288000" height="100" alt="Application Architect"/>  
+  <img src="https://drm.file.force.com/servlet/servlet.ImageServer?id=0153k00000A5MtX&oid=00DF0000000gZsu&lastMod=1617267315000" height="100" alt="JavaScript Developer 1"/>
+  <img src="https://drm.file.force.com/servlet/servlet.ImageServer?id=0153k00000A5Mth&oid=00DF0000000gZsu&lastMod=1617268556000" height="100" alt="Platform Developer 2"/>
+  <img src="https://drm.file.force.com/servlet/servlet.ImageServer?id=0153k00000A5Mtz&oid=00DF0000000gZsu&lastMod=1617268528000" height="100" alt="Platform Developer 1"/>
+</div>
 
 - 🔭 I’m currently working on [Cloud Code Academy](https://cloudcodeacademy.com).
 
