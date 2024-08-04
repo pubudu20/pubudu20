@@ -8,8 +8,20 @@
 <br />
 
 ![enter image description here](https://github.com/pubudu20/pubudu20/blob/main/img/coding-freak.gif)
+<br />
 
-## I'm a Student, a Developer, and a Chess Player!!
+## I'm a Salesforce Admin, a Developer, and a Chess Player!!
+<br />
+
+- 🔭 I’m currently working on [Cloud Code Academy](https://cloudcodeacademy.com).
+
+- 🌱 I’m currently learning  Apex, Integrations, LWC, SFDX and SOQL
+
+- 👯 I’m looking to collaborate with other develoopers
+
+- 🥅 2021 Goals: Contribute more to Open Source projects
+
+<br />
 
 # ⚙ Salesforce Technologies
 <table width="100%" style="border:0px;">
