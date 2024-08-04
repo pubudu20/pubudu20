@@ -49,7 +49,7 @@
     </td>
     <td align="center" style="border:0px;"><img src="https://github.com/pubudu20/pubudu20/blob/main/img/Platform-App-Builder.png" alt="Platform App Builder" style="width: 100px;"/><br><b>Platform App Builder</b></td>
     <td align="center" style="border:0px;"><img src="https://github.com/pubudu20/pubudu20/blob/main/img/Associate.png" alt="Associate" style="width: 100px;"/><br><b>Associate</b></td>
-    <td align="center" style="border:0px;"><img src="https://res.cloudinary.com/hy4kyit2a/f_auto,fl_lossy,q_70/learn/projects/quickstart-vscode-salesforce/a884f9ae6802649bf19065787ec0bb29_badge.png" alt="SFDX" style="width: 100px;"/><br><b>SFDX</b></td>
+    <td align="center" style="border:0px;"><img src="https://github.com/pubudu20/pubudu20/blob/main/img/5304e3a71e4f3f6150cc794b2febc9b8_badge.webp" alt="Admin Super Set" style="width: 100px;"/><br><b>Admin Super Set</b></td>
     <td align="center" style="border:0px;"><img src="https://res.cloudinary.com/hy4kyit2a/f_auto,fl_lossy,q_70/learn/modules/soql-for-admins/04607670444dbbe5aac7e77bc03c4fd1_badge.png" alt="SOQL" style="width: 100px;"/><br><b>SOQL</b></td>
     <td align="center" style="border:0px;"><img src="https://developer.salesforce.com/resource/images/trailhead/badges/modules/trailhead_module_performance-troubleshooting-in-lwc.png" alt="Testing" style="width: 100px;"/><br><b>Testing</b></td>
   </tr>
