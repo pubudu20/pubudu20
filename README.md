@@ -12,7 +12,8 @@
 
 ## I'm a Salesforce Administrator and a Developer!!
 <br />
-- 🔭 I’m currently working on [Cloud Code Academy](https://cloudcodeacademy.com).
+
+- 🔭 I’m currently working on [Cloud Code Academy](https://cloudcodeacademy.com)
 
 - 🌱 I’m currently learning  Apex, Integrations, LWC, SFDX and SOQL
 
