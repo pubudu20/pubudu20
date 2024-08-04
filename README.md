@@ -19,7 +19,7 @@
 
 - 👯 I’m looking to collaborate with other develoopers
 
-- 🥅 2021 Goals: Contribute more to Open Source projects
+- 🥅 2024 Goals: Contribute more to Open Source projects
 
 <br />
 
@@ -40,21 +40,20 @@
 </table>
 
 # ☁ Salesforce Credentials
-
-<div align="center">
-  <img src="https://github.com/pubudu20/pubudu20/blob/main/img/Administrator.png" height="100" alt="Administrator"/>  
-  <img src="https://github.com/pubudu20/pubudu20/blob/main/img/Platform-App-Builder.png" height="100" alt="Platform App Builder"/>
-  <img src="https://drm.file.force.com/servlet/servlet.ImageServer?id=0153k00000A5Mth&oid=00DF0000000gZsu&lastMod=1617268556000" height="100" alt="Platform Developer 2"/>
-  <img src="https://drm.file.force.com/servlet/servlet.ImageServer?id=0153k00000A5Mtz&oid=00DF0000000gZsu&lastMod=1617268528000" height="100" alt="Platform Developer 1"/>
-</div>
-
-- 🔭 I’m currently working on [Cloud Code Academy](https://cloudcodeacademy.com).
-
-- 🌱 I’m currently learning  Javascript, React, Node, Express and Java
-
-- 👯 I’m looking to collaborate with other develoopers
-
-- 🥅 2021 Goals: Contribute more to Open Source projects
+<table width="100%" style="border:0px;">
+  <tr style="border:0px;" >
+    <td align="center" style="border:0px;">
+        <img src="https://github.com/pubudu20/pubudu20/blob/main/img/Administrator.png" alt="Administrator" style="width: 100px;"/>
+        <br>
+        <b>Administrator</b>
+    </td>
+    <td align="center" style="border:0px;"><img src="https://github.com/pubudu20/pubudu20/blob/main/img/Platform-App-Builder.png" alt="Platform App Builder" style="width: 100px;"/><br><b>Platform App Builder</b></td>
+    <td align="center" style="border:0px;"><img src="https://github.com/pubudu20/pubudu20/blob/main/img/Associate.png" alt="Associate" style="width: 100px;"/><br><b>Associate</b></td>
+    <td align="center" style="border:0px;"><img src="https://res.cloudinary.com/hy4kyit2a/f_auto,fl_lossy,q_70/learn/projects/quickstart-vscode-salesforce/a884f9ae6802649bf19065787ec0bb29_badge.png" alt="SFDX" style="width: 100px;"/><br><b>SFDX</b></td>
+    <td align="center" style="border:0px;"><img src="https://res.cloudinary.com/hy4kyit2a/f_auto,fl_lossy,q_70/learn/modules/soql-for-admins/04607670444dbbe5aac7e77bc03c4fd1_badge.png" alt="SOQL" style="width: 100px;"/><br><b>SOQL</b></td>
+    <td align="center" style="border:0px;"><img src="https://developer.salesforce.com/resource/images/trailhead/badges/modules/trailhead_module_performance-troubleshooting-in-lwc.png" alt="Testing" style="width: 100px;"/><br><b>Testing</b></td>
+  </tr>
+</table>
 
 ![Pubudu's github stats](https://github-readme-stats.vercel.app/api?username=pubudu20&show_icons=true&include_all_commits=true&hide_border=true)
 ![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=pubudu20&layout=compact)
