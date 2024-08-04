@@ -8,10 +8,8 @@
 <br />
 
 ![enter image description here](https://github.com/pubudu20/pubudu20/blob/main/img/coding-freak.gif)
-<br />
 
 ## I'm a Salesforce Administrator and a Developer!!
-<br />
 
 - 🔭 I’m currently working on [Cloud Code Academy](https://cloudcodeacademy.com)
 
@@ -40,6 +38,8 @@
   </tr>
 </table>
 
+<br />
+
 # ⚙ Salesforce Technologies
 <table width="100%" style="border:0px;">
   <tr style="border:0px;" >
@@ -55,6 +55,7 @@
     <td align="center" style="border:0px;"><img src="https://developer.salesforce.com/resource/images/trailhead/badges/modules/trailhead_module_performance-troubleshooting-in-lwc.png" alt="Testing" style="width: 100px;"/><br><b>Testing</b></td>
   </tr>
 </table>
+<br />
 
 ![Pubudu's github stats](https://github-readme-stats.vercel.app/api?username=pubudu20&show_icons=true&include_all_commits=true&hide_border=true)
 ![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=pubudu20&layout=compact)
