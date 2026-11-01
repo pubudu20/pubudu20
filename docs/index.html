@@ -175,6 +175,26 @@ svg.chart text{font-family:var(--sans);font-size:10px;fill:var(--muted)}
 li.swappable{background:var(--accent-soft);border-radius:10px;padding-left:8px;cursor:pointer}
 .catb{display:inline-grid;place-items:center;flex:none;border-radius:12px;background:var(--accent-soft);color:var(--accent)}
 .bnum{flex:none;min-width:26px;text-align:right;font-family:var(--serif);font-weight:600;color:var(--muted);font-variant-numeric:tabular-nums}
+#award{position:fixed;left:50%;top:calc(70px + env(safe-area-inset-top));transform:translate(-50%,-260%);z-index:70;display:flex;gap:14px;align-items:center;background:var(--surface);
+  border:1px solid var(--line);border-radius:18px;padding:12px 18px;box-shadow:0 12px 34px rgba(0,0,0,.28);width:calc(100% - 32px);max-width:420px;transition:transform .45s cubic-bezier(.2,1.4,.4,1)}
+#award.show{transform:translate(-50%,0)}
+.aw-e{font-size:2.4rem;line-height:1}
+.xpfloat{position:fixed;left:50%;top:42%;z-index:65;font-family:var(--serif);font-weight:700;font-size:2rem;color:var(--accent);pointer-events:none;animation:xpf 1.6s ease-out forwards;text-shadow:0 2px 10px var(--bg)}
+@keyframes xpf{0%{opacity:0;transform:translate(-50%,12px) scale(.7)}15%{opacity:1;transform:translate(-50%,0) scale(1.15)}100%{opacity:0;transform:translate(-50%,-80px) scale(1)}}
+.cf{position:fixed;top:-14px;width:8px;height:13px;border-radius:2px;z-index:69;pointer-events:none;animation:cf 2.2s ease-in forwards}
+@keyframes cf{to{transform:translate(var(--dx),105vh) rotate(var(--r))}}
+@media (prefers-reduced-motion: reduce){.cf{display:none}#award{transition:none}}
+.qbox{width:26px;height:26px;border-radius:50%;border:2px solid var(--muted);display:grid;place-items:center;flex:none;font-weight:800;font-size:.85rem;color:var(--surface)}
+.qbox.on{background:var(--good);border-color:var(--good)}
+.badges{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+.badge{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 4px;border-radius:12px;background:var(--surface2);border:none;cursor:pointer;min-height:84px}
+.badge .be{font-size:1.75rem;line-height:1}.badge .bn{font-size:.68rem;line-height:1.2;color:var(--ink2);font-weight:600;text-align:center}
+.badge.locked .be{filter:grayscale(1);opacity:.3}.badge.locked .bn{color:var(--muted);font-weight:400}
+.clamp3{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;white-space:pre-wrap;margin-top:2px}
+.blank{display:inline-block;min-width:80px;border-bottom:2px solid var(--accent);color:transparent}
+.btn.right{border-color:var(--good);color:var(--good);background:var(--good-soft)}
+.btn.wrong{border-color:#b3261e;color:#b3261e}
+.btn:disabled{opacity:1}
 .idea{padding:10px 12px;border-left:3px solid var(--accent);background:var(--surface2);border-radius:0 10px 10px 0;margin:6px 0}
 details>summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-weight:600;list-style:none}
 details>summary::-webkit-details-marker{display:none}
@@ -195,6 +215,7 @@ details>summary::-webkit-details-marker{display:none}
 <div id="scrim"></div>
 <section id="sheet" role="dialog" aria-modal="true"><div class="grab"></div><div id="sheetBody"></div></section>
 <div id="toast" role="status"></div>
+<div id="award" role="status" aria-live="polite"></div>
 
 <script>
 'use strict';
@@ -202,7 +223,7 @@ details>summary::-webkit-details-marker{display:none}
    Reading Habit — single-file offline app. Data: localStorage.
    ========================================================== */
 const KEY = 'readingHabit.v1';
-const APP_VERSION = '1.1.0';
+const APP_VERSION = '1.2.0';
 
 /* ---------- Seed data ---------- */
 const SEED = `The Daily Laws | Robert Greene | Strategy | Daily | Warm-up | Reading
@@ -332,6 +353,9 @@ function defaultState(){
     dailyLaws: {},
     current: { Deep:null, Practical:null },
     reviews: [],
+    cards: {},
+    quizLog: [],
+    seenBadges: [],
     timer: null,
   };
 }
@@ -346,6 +370,9 @@ function normalize(s){
   s.dailyLaws = s.dailyLaws || {};
   s.current = Object.assign({Deep:null, Practical:null}, s.current || {});
   s.reviews = Array.isArray(s.reviews) ? s.reviews : [];
+  s.cards = s.cards && typeof s.cards === 'object' ? s.cards : {};
+  s.quizLog = Array.isArray(s.quizLog) ? s.quizLog : [];
+  s.seenBadges = Array.isArray(s.seenBadges) ? s.seenBadges : [];
   return s;
 }
 function load(){
@@ -429,7 +456,9 @@ function setCurrent(id){
   save();
 }
 function addSession(o){
-  S.sessions.push({ id: uid(), date: o.date || todayKey(), bookId: o.bookId || null, kind: o.kind, minutes: Math.max(0, num(o.minutes)), pages: Math.max(0, num(o.pages)), ts: Date.now() });
+  const s = { id: uid(), date: o.date || todayKey(), bookId: o.bookId || null, kind: o.kind === 'audio' ? 'audio' : 'paper', minutes: Math.max(0, num(o.minutes)), pages: Math.max(0, num(o.pages)), ts: Date.now() };
+  for(const k of ['fromPage','toPage','heading','summary','q','a','startedAt']) if(o[k]) s[k] = o[k];
+  S.sessions.push(s);
   const b = o.bookId && bookById(o.bookId);
   if(b && b.status === 'To read'){ b.status = 'Reading'; if(!b.start) b.start = o.date || todayKey(); }
   save();
@@ -486,6 +515,7 @@ const ICON = {
   plan: sv('<path d="M4 5h16M4 12h10M4 19h7"/><circle cx="18" cy="17" r="3"/>'),
   library: sv('<path d="M4 4h4v16H4zM10 4h4v16h-4z"/><path d="M16.5 4.5l3.5 1-4 14.6-3.5-1z"/>'),
   stats: sv('<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>'),
+  learn: sv('<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/>'),
   settings: sv('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>'),
   x: sv('<path d="M6 6l12 12M18 6L6 18"/>'),
   more: sv('<circle cx="5" cy="12" r="1.3" fill="currentColor"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/><circle cx="19" cy="12" r="1.3" fill="currentColor"/>'),
@@ -525,9 +555,9 @@ const planSort = (a,b) => (a.phase - b.phase) || ((TRACK_ORDER[a.track] ?? 3) - 
 function bookNumbers(){ const m = {}; [...S.books].sort(planSort).forEach((b,i) => m[b.id] = i + 1); return m; }
 
 /* ---------- Tabs & routing ---------- */
-const TABS = [['today','Today'],['plan','Plan'],['library','Library'],['stats','Stats'],['settings','Settings']];
+const TABS = [['today','Today'],['plan','Plan'],['library','Library'],['learn','Learn'],['stats','Stats']];
 let tab = 'today';
-let ui = { q:'', fStatus:'', fCat:'', fPhase:'', fTrack:'', swapFrom:null, tipHeat:'', tipWeek:'', tipMonth:'' };
+let ui = { q:'', fStatus:'', fCat:'', fPhase:'', fTrack:'', swapFrom:null, tipHeat:'', tipWeek:'', tipMonth:'', jq:'', jb:'' };
 
 function renderTabs(){
   $('#tabs').innerHTML = TABS.map(([k,l]) =>
@@ -535,11 +565,13 @@ function renderTabs(){
 }
 function go(t){ tab = t; ui.swapFrom = null; render(); window.scrollTo(0,0); }
 function render(){
+  G = checkRewards();
   renderTabs();
-  const v = { today: viewToday, plan: viewPlan, library: viewLibrary, stats: viewStats, settings: viewSettings }[tab];
+  const v = { today: viewToday, plan: viewPlan, library: viewLibrary, learn: viewLearn, stats: viewStats, settings: viewSettings }[tab];
   $('#main').innerHTML = v();
   if(tab === 'library') bindLibrary();
   if(tab === 'settings') bindSettings();
+  if(tab === 'learn') bindLearn();
   updateMini();
 }
 
@@ -570,7 +602,7 @@ function viewToday(){
   const dlDate = parseKey(t);
   let h = `<div class="stack">
   <header style="padding-top:6px">
-    <div class="eyebrow">${fmtLong(t)}</div>
+    <div class="row between"><div class="eyebrow">${fmtLong(t)}</div><button class="iconbtn" data-act="tab" data-id="settings" aria-label="Settings" style="margin:-10px -10px -10px 0">${ICON.settings}</button></div>
     <h1 style="margin-top:4px">${greeting()}</h1>
     <p class="ink2 small" style="margin-top:6px">${routineHint()}</p>
   </header>`;
@@ -598,6 +630,7 @@ function viewToday(){
   h += `<button class="btn primary big" data-act="startTimer">${S.timer ? 'Back to timer' : 'Start reading'}</button>
   <div class="grid2"><button class="btn" data-act="logAudio">${ICON.headphones.replace('<svg','<svg width="20" height="20"')} Log audio</button>
   <button class="btn" data-act="bored">Bored?</button></div>`;
+  h += questsCard();
 
   // daily laws
   h += `<section class="card" style="padding:4px 16px">
@@ -647,7 +680,7 @@ function startTimer(bookId){
   if(!S.timer){
     const d = dayMap()[todayKey()] || {paper:0}, tg = targets();
     const deep = currentBook('Deep');
-    S.timer = { startedAt: Date.now(), acc: 0, bookId: bookId || (deep ? deep.id : null), date: todayKey(), base: d.paper, vibrated: d.paper >= tg.paper };
+    S.timer = { startedAt: Date.now(), first: Date.now(), acc: 0, bookId: bookId || (deep ? deep.id : null), date: todayKey(), base: d.paper, vibrated: d.paper >= tg.paper };
     save();
     try { navigator.vibrate && navigator.vibrate(30); } catch(e){}
     requestPersist();
@@ -719,53 +752,394 @@ function bookOptions(selId, filter){
   const list = S.books.filter(b => filter ? filter(b) : (b.status === 'Reading' || b.id === selId)).sort((a,b) => TRACKS.indexOf(a.track) - TRACKS.indexOf(b.track) || byPhaseOrder(a,b));
   return list.map(b => `<option value="${b.id}" ${b.id===selId?'selected':''}>${esc(b.title)} (${b.track})</option>`).join('') + `<option value="" ${!selId?'selected':''}>Other / not in library</option>`;
 }
+/* ---------- Log sheet: one form for timer, audio, Daily Laws and journal edits ---------- */
+function lastPage(bookId, exceptId){ let m = 0; for(const s of S.sessions) if(s.bookId === bookId && s.id !== exceptId && s.toPage) m = Math.max(m, s.toPage); return m; }
+const isDL = id => { const b = bookById(id); return !!b && b.track === 'Warm-up'; };
+const dlHeading = k => { const d = parseKey(k); return `${MONTHS_LONG[d.getMonth()]} ${d.getDate()} – `; };
+const pageHint = l => l ? `Last time you stopped at page ${l}.` : 'Enter a page range, or just the number of pages.';
+function openLogSheet(o = {}){
+  const ed = o.session || null, timer = o.mode === 'timer';
+  let kind = ed ? ed.kind : (o.kind || 'paper');
+  const defBook = currentBook(kind === 'audio' ? 'Practical' : 'Deep');
+  const bookId0 = ed ? ed.bookId : (o.bookId !== undefined ? o.bookId : (defBook ? defBook.id : null));
+  const date0 = ed ? ed.date : (o.date || todayKey());
+  const mins0 = ed ? (ed.minutes || '') : (o.minutes || '');
+  const title = ed ? 'Edit entry' : timer ? 'Log this session' : o.dl ? 'Today\'s Daily Law' : kind === 'audio' ? 'Log audio' : 'Log reading';
+  const lp = lastPage(bookId0, ed && ed.id);
+  const from0 = ed ? (ed.fromPage || '') : (lp ? lp + 1 : '');
+  const heading0 = ed ? (ed.heading || '') : (isDL(bookId0) ? dlHeading(date0) : '');
+  const opts = bookOptions(bookId0, b => b.status === 'Reading' || b.id === bookId0 || b.track === 'Warm-up' || S.current.Deep === b.id || S.current.Practical === b.id);
+  openSheet(title, `<div class="stack">
+    ${timer ? `<p class="ink2" style="margin-top:-6px">You read for <b>${fmtClock(S.timer.acc)}</b>. Nice work.</p>` : ''}
+    <label class="f">Book<select id="lBook">${opts}</select></label>
+    <div class="seg" id="lKind"><button type="button" data-k="paper" class="${kind!=='audio'?'on':''}">Paper</button><button type="button" data-k="audio" class="${kind==='audio'?'on':''}">Audio</button></div>
+    <div class="grid2"><label class="f">Minutes<input id="lMin" type="number" inputmode="numeric" min="0" value="${mins0}" placeholder="0"></label>
+    <label class="f">Date<input id="lDate" type="date" value="${date0}" max="${todayKey()}"></label></div>
+    ${timer || ed ? '' : `<div class="chips" id="lChips">${[5,10,15,20,30,45].map(n => `<button type="button" data-n="${n}">${n}</button>`).join('')}</div>`}
+    <div><div class="grid3">
+      <label class="f">From page<input id="lFrom" type="number" inputmode="numeric" min="0" value="${from0}"></label>
+      <label class="f">To page<input id="lTo" type="number" inputmode="numeric" min="0" value="${ed && ed.toPage || ''}"></label>
+      <label class="f">Pages<input id="lPages" type="number" inputmode="numeric" min="0" value="${ed && ed.pages || ''}" placeholder="0"></label></div>
+      <p class="tiny muted" id="lHint" style="margin:6px 0 0">${pageHint(lp)}</p></div>
+    <label class="f">Title / chapter <span class="muted">(optional)</span><input id="lHead" value="${esc(heading0)}" placeholder="e.g. November 1 – Hope for us all"></label>
+    <label class="f">Summary: what did you learn? <span class="chip accent">+15 XP</span><textarea id="lSum" rows="6" placeholder="The key points in your own words. Writing it down is how you remember it.">${esc(ed ? ed.summary || '' : '')}</textarea></label>
+    <details ${ed && ed.q ? 'open' : ''}><summary>❓ Add a quiz question <span class="chip accent" style="margin-left:8px">+5 XP</span></summary>
+      <div class="stack" style="padding-bottom:6px"><p class="tiny muted" style="margin:0">It comes back in your recall quiz, so it sticks.</p>
+      <label class="f">Question<input id="lQ" value="${esc(ed ? ed.q || '' : '')}" placeholder="e.g. What 2 factors give us hope?"></label>
+      <label class="f">Answer<textarea id="lA" rows="3">${esc(ed ? ed.a || '' : '')}</textarea></label></div></details>
+    <button class="btn primary block" id="lSave">${ed ? 'Save changes' : 'Save'}</button>
+    ${timer ? `<div class="grid2"><button class="btn" id="lResume">Keep reading</button><button class="btn danger" id="lDiscard">Discard</button></div>` : ''}
+    ${ed ? `<button class="btn danger block" id="lDel">Delete entry</button>` : ''}
+  </div>`, el => {
+    const from = $('#lFrom', el), to = $('#lTo', el), pages = $('#lPages', el), head = $('#lHead', el), date = $('#lDate', el);
+    let autoFrom = !ed, autoHead = !ed && !!heading0;
+    const setKind = k => { kind = k; $$('#lKind button', el).forEach(x => x.classList.toggle('on', x.dataset.k === k)); };
+    $$('#lKind button', el).forEach(x => x.onclick = () => setKind(x.dataset.k));
+    const calc = () => { const f = num(from.value), t = num(to.value); if(f > 0 && t >= f) pages.value = t - f + 1; };
+    from.oninput = () => { autoFrom = false; calc(); };
+    to.oninput = calc;
+    head.oninput = () => { autoHead = false; };
+    const refreshBook = () => {
+      const id = $('#lBook', el).value, l = lastPage(id, ed && ed.id);
+      if(autoFrom){ from.value = l ? l + 1 : ''; calc(); }
+      $('#lHint', el).textContent = pageHint(l);
+      if(autoHead || !head.value){ head.value = isDL(id) ? dlHeading(date.value || todayKey()) : ''; autoHead = !!head.value; }
+    };
+    $('#lBook', el).onchange = () => { refreshBook(); const b = bookById($('#lBook', el).value); if(b && !ed && !timer) setKind(b.format === 'audio' ? 'audio' : 'paper'); };
+    date.onchange = () => { if(autoHead) refreshBook(); };
+    $$('#lChips button', el).forEach(b => b.onclick = () => { $('#lMin', el).value = b.dataset.n; $$('#lChips button', el).forEach(x => x.classList.toggle('on', x === b)); });
+    $('#lSave', el).onclick = () => {
+      const f = num(from.value), t = num(to.value);
+      if(f > 0 && t > 0 && t < f){ toast('"To page" is before "From page"'); return; }
+      const ranged = f > 0 && t >= f;
+      const p = ranged ? t - f + 1 : Math.max(0, num(pages.value));
+      const bookId = $('#lBook', el).value || null, d = date.value || todayKey();
+      let heading = head.value.trim();
+      if(autoHead && heading === dlHeading(d).trim()) heading = '';
+      const summary = $('#lSum', el).value.trim(), q = $('#lQ', el).value.trim(), a = $('#lA', el).value.trim();
+      const minutes = Math.max(0, num($('#lMin', el).value));
+      if(q && !a){ toast('Add the answer to your quiz question'); return; }
+      if(minutes <= 0 && p <= 0 && !summary && !q){ toast('Add minutes, pages or a summary'); return; }
+      const data = { bookId, date: d, kind, minutes, pages: p, fromPage: ranged ? f : 0, toPage: ranged ? t : 0, heading, summary, q, a };
+      if(timer && S.timer.first) data.startedAt = S.timer.first;
+      if(ed){ Object.assign(ed, data); save(); } else addSession(data);
+      if(isDL(bookId)){ S.dailyLaws[d] = true; save(); }
+      if(timer){ S.timer = null; save(); popLayers(layers.length); } else { closeSheet(); render(); }
+      const dm = dayMap()[todayKey()], tg = targets();
+      toast(ed ? 'Entry updated' : (kind === 'paper' && dm && dm.paper >= tg.paper && tg.paper) ? 'Target met. Reward unlocked.' : 'Logged. Nice.');
+    };
+    const r = $('#lResume', el); if(r) r.onclick = () => { S.timer.startedAt = Date.now(); save(); closeSheet(); tickTimer(); };
+    const x = $('#lDiscard', el); if(x) x.onclick = () => { if(confirm('Discard this session without logging it?')){ S.timer = null; save(); popLayers(layers.length); } };
+    const del = $('#lDel', el); if(del) del.onclick = () => { if(!confirm('Delete this entry?')) return; S.sessions = S.sessions.filter(s => s !== ed); save(); closeSheet(); render(); toast('Entry deleted'); };
+  });
+}
 function stopTimer(){
   const T = S.timer; if(!T) return;
   if(T.startedAt){ T.acc += Date.now() - T.startedAt; T.startedAt = null; save(); }
   tickTimer();
-  const mins = Math.max(1, Math.round(T.acc / 60000));
-  openSheet('Log this session', `<div class="stack">
-    <p class="ink2">You read for <b>${fmtClock(T.acc)}</b>. Nice.</p>
-    <label class="f">Book<select id="sBook">${bookOptions(T.bookId)}</select></label>
-    <div class="grid2"><label class="f">Minutes<input id="sMin" type="number" inputmode="numeric" min="1" value="${mins}"></label>
-    <label class="f">Pages read <span class="muted">(optional)</span><input id="sPages" type="number" inputmode="numeric" min="0" placeholder="0"></label></div>
-    <button class="btn primary block" id="sSave">Save session</button>
-    <div class="grid2"><button class="btn" id="sResume">Keep reading</button><button class="btn danger" id="sDiscard">Discard</button></div>
-  </div>`, el => {
-    $('#sSave', el).onclick = () => {
-      const minutes = num($('#sMin', el).value), pages = num($('#sPages', el).value);
-      if(minutes <= 0 && pages <= 0){ toast('Enter minutes or pages'); return; }
-      const logBook = bookById($('#sBook', el).value);
-      addSession({ date: T.date || todayKey(), bookId: logBook ? logBook.id : '', kind:'paper', minutes, pages });
-      if(logBook && logBook.track === 'Warm-up'){ S.dailyLaws[T.date || todayKey()] = true; save(); }
-      S.timer = null; save(); popLayers(layers.length);
-      const d = dayMap()[todayKey()], tg = targets();
-      toast(d && d.paper >= tg.paper ? 'Target met. Reward unlocked.' : `Logged ${minutes} min.`);
-    };
-    $('#sResume', el).onclick = () => { S.timer.startedAt = Date.now(); save(); closeSheet(); tickTimer(); };
-    $('#sDiscard', el).onclick = () => { if(confirm('Discard this session without logging it?')){ S.timer = null; save(); popLayers(layers.length); } };
-  });
+  const b = bookById(T.bookId);
+  openLogSheet({ mode:'timer', bookId: T.bookId, kind: b && b.format === 'audio' ? 'audio' : 'paper', minutes: Math.max(1, Math.round(T.acc / 60000)), date: T.date || todayKey() });
+}
+function logAudio(){ const p = currentBook('Practical'); openLogSheet({ kind:'audio', bookId: p ? p.id : null }); }
+function entryRow(s, showBook){
+  const b = bookById(s.bookId);
+  const meta = [fmtDate(s.date), showBook ? (b ? esc(b.title) : 'Other') : '', s.fromPage ? `p. ${s.fromPage}–${s.toPage}` : (s.pages ? `${s.pages} pages` : ''), s.minutes ? `${s.minutes} min${s.kind==='audio'?' audio':''}` : ''].filter(Boolean).join(' · ');
+  return `<li data-act="editEntry" data-id="${s.id}" style="cursor:pointer;align-items:flex-start">${showBook ? catBadge(b && b.category, 36) : ''}
+    <div class="grow"><div class="tiny muted">${meta}</div>
+    ${s.heading ? `<div class="serif" style="font-weight:600;line-height:1.3">${esc(s.heading)}</div>` : ''}
+    ${s.summary ? `<div class="small ink2 clamp3">${esc(s.summary)}</div>` : ''}
+    ${s.q ? `<div class="tiny" style="color:var(--accent);margin-top:2px">❓ ${esc(s.q)}</div>` : ''}</div></li>`;
 }
 
-/* ---------- Audio / bored / daily laws ---------- */
-function logAudio(){
-  const p = currentBook('Practical');
-  let sel = 15;
-  openSheet('Log audio', `<div class="stack">
-    <label class="f">Book<select id="aBook">${bookOptions(p && p.id, b => b.status === 'Reading' || (p && b.id === p.id) || (b.format !== 'paper' && b.status === 'To read'))}</select></label>
-    <div><div class="f" style="font-size:.85rem;font-weight:600;color:var(--ink2);margin-bottom:6px">Minutes</div>
-    <div class="chips" id="aChips">${[10,15,20,30,45,60].map(n => `<button type="button" data-n="${n}" class="${n===sel?'on':''}">${n}</button>`).join('')}</div>
-    <input class="inp" id="aMin" type="number" inputmode="numeric" min="1" value="${sel}" aria-label="Minutes"></div>
-    <label class="f">Date<input id="aDate" type="date" value="${todayKey()}" max="${todayKey()}"></label>
-    <button class="btn primary block" id="aSave">Save audio</button></div>`, el => {
-    $$('#aChips button', el).forEach(b => b.onclick = () => { $$('#aChips button', el).forEach(x => x.classList.remove('on')); b.classList.add('on'); $('#aMin', el).value = b.dataset.n; });
-    $('#aSave', el).onclick = () => {
-      const minutes = num($('#aMin', el).value); if(minutes <= 0){ toast('Enter minutes'); return; }
-      addSession({ date: $('#aDate', el).value || todayKey(), bookId: $('#aBook', el).value, kind:'audio', minutes });
-      closeSheet(); render(); toast(`Logged ${minutes} audio min.`);
+/* ---------- Gamification: XP, ranks, quests, badges ---------- */
+const RANKS = ['Curious Beginner','Page Turner','Steady Reader','Bookworm','Deep Reader','Note Taker','Scholar','Thinker','Philosopher','Sage','Strategist','Master of Letters','Polymath','Luminary','Grand Reader','Legend of the Library'];
+const rankName = n => n < RANKS.length ? RANKS[n] : `${RANKS[RANKS.length-1]} ${n - RANKS.length + 2}`;
+const rankOf = xp => { const n = Math.floor(Math.sqrt(Math.max(0, xp) / 150)); return { n, name: rankName(n), next: rankName(n+1), from: 150*n*n, to: 150*(n+1)*(n+1) }; };
+const hasSummary = s => (s.summary || '').trim().length >= 20;
+const XP = { summary:15, qa:5, target:20, daily:10, perfect:25, book:100, ideas:20, review:30, badge:50 };
+const BADGES = [
+  {id:'first', e:'🌱', n:'First step', d:'Log your first session', t:c => c.sessions >= 1},
+  {id:'s3', e:'🔥', n:'On fire', d:'Reach a 3-day streak', t:c => c.best >= 3},
+  {id:'s7', e:'⚡', n:'One week strong', d:'Reach a 7-day streak', t:c => c.best >= 7},
+  {id:'s14', e:'🏅', n:'Fortnight', d:'Reach a 14-day streak', t:c => c.best >= 14},
+  {id:'s30', e:'🏆', n:'Habit formed', d:'Reach a 30-day streak', t:c => c.best >= 30},
+  {id:'s60', e:'💎', n:'Unbreakable', d:'Reach a 60-day streak', t:c => c.best >= 60},
+  {id:'s100', e:'👑', n:'Centurion', d:'Reach a 100-day streak', t:c => c.best >= 100},
+  {id:'comeback', e:'💪', n:'Never miss twice', d:'Read again the day after a missed day', t:c => c.comeback},
+  {id:'week', e:'🗓️', n:'Perfect week', d:'Read every day from Monday to Sunday', t:c => c.perfectWeek},
+  {id:'early', e:'🌅', n:'Book before YouTube', d:'Start a session before 9 am', t:c => c.early >= 1},
+  {id:'early10', e:'☀️', n:'Morning person', d:'10 sessions started before 9 am', t:c => c.early >= 10},
+  {id:'dl7', e:'📜', n:'Law student', d:'Read the Daily Laws on 7 days', t:c => c.dlDays >= 7},
+  {id:'dl30', e:'⚖️', n:'Law keeper', d:'Read the Daily Laws on 30 days', t:c => c.dlDays >= 30},
+  {id:'dl100', e:'🏛️', n:'Law master', d:'Read the Daily Laws on 100 days', t:c => c.dlDays >= 100},
+  {id:'note1', e:'✍️', n:'First summary', d:'Write your first summary', t:c => c.summaries >= 1},
+  {id:'note10', e:'📝', n:'Note taker', d:'Write 10 summaries', t:c => c.summaries >= 10},
+  {id:'note50', e:'🗂️', n:'Commonplace book', d:'Write 50 summaries', t:c => c.summaries >= 50},
+  {id:'qa5', e:'❓', n:'Question maker', d:'Write 5 quiz questions', t:c => c.qas >= 5},
+  {id:'quiz10', e:'🧠', n:'Sharp memory', d:'Remember 10 quiz cards', t:c => c.quizGood >= 10},
+  {id:'quiz50', e:'🎓', n:'Retention pro', d:'Remember 50 quiz cards', t:c => c.quizGood >= 50},
+  {id:'quizP', e:'⭐', n:'Flawless', d:'Get every card right in a quiz of 3+', t:c => c.quizPerfect >= 1},
+  {id:'target10', e:'🎯', n:'On target', d:'Hit the daily target on 10 days', t:c => c.targetDays >= 10},
+  {id:'perfect', e:'🌟', n:'Perfect day', d:'Complete every daily quest', t:c => c.perfectDays >= 1},
+  {id:'perfect7', e:'✨', n:'Perfect seven', d:'Complete every quest on 7 days', t:c => c.perfectDays >= 7},
+  {id:'hour', e:'🌊', n:'Deep dive', d:'Read 60+ minutes in one session', t:c => c.maxSession >= 60},
+  {id:'p1000', e:'📄', n:'1,000 pages', d:'Read 1,000 pages', t:c => c.pages >= 1000},
+  {id:'h10', e:'⏳', n:'10 hours', d:'Read for 10 hours in total', t:c => c.minutes >= 600},
+  {id:'h50', e:'⌛', n:'50 hours', d:'Read for 50 hours in total', t:c => c.minutes >= 3000},
+  {id:'b1', e:'📖', n:'First book', d:'Finish a book', t:c => c.books >= 1},
+  {id:'b5', e:'🥉', n:'Five books', d:'Finish 5 books', t:c => c.books >= 5},
+  {id:'b10', e:'🥈', n:'Ten books', d:'Finish 10 books', t:c => c.books >= 10},
+  {id:'b25', e:'🥇', n:'Twenty-five books', d:'Finish 25 books', t:c => c.books >= 25},
+  {id:'rev4', e:'🔁', n:'Reflective', d:'Do 4 weekly reviews', t:c => c.reviews >= 4},
+];
+function questsFor(k, ctx){
+  const tg = targets(k), d = ctx.m[k];
+  const q = [
+    { id:'dl', done: !!S.dailyLaws[k] },
+    { id:'target', done: !!(tg.paper && d && d.paper >= tg.paper) },
+    { id:'summary', done: ctx.sumDays.has(k) },
+  ];
+  if(ctx.firstCard && ctx.firstCard < k) q.push({ id:'quiz', done: ctx.quizDays.has(k) });
+  return q;
+}
+function game(){
+  const m = dayMap();
+  let xp = 0;
+  const c = { sessions: S.sessions.length, summaries:0, qas:0, pages:0, minutes:0, early:0, maxSession:0, targetDays:0, dlDays:0, perfectDays:0, books:0, reviews: S.reviews.length, quizGood:0, quizPerfect:0 };
+  const sumDays = new Set(), quizDays = new Set();
+  let firstCard = null;
+  const card = k => { if(k && (!firstCard || k < firstCard)) firstCard = k; };
+  for(const s of S.sessions){
+    xp += (s.minutes || 0) + (s.pages || 0); c.pages += s.pages || 0; c.minutes += s.minutes || 0; c.maxSession = Math.max(c.maxSession, s.minutes || 0);
+    if(hasSummary(s)){ xp += XP.summary; c.summaries++; sumDays.add(s.date); card(s.date); }
+    if(s.q && s.a){ xp += XP.qa; c.qas++; card(s.date); }
+    const st = s.startedAt || (s.ts ? s.ts - (s.minutes || 0) * 60000 : 0);
+    if(st && keyOf(new Date(st)) === s.date){ const h = new Date(st).getHours(); if(h >= 4 && h < 9) c.early++; }
+  }
+  for(const k in m){ const tg = targets(k); if(tg.paper && m[k].paper >= tg.paper){ c.targetDays++; xp += XP.target; } }
+  for(const k in S.dailyLaws) if(S.dailyLaws[k]){ c.dlDays++; xp += XP.daily; }
+  const rounds = {};
+  for(const q of S.quizLog){
+    xp += q.xp || 0; quizDays.add(q.date); if(q.g === 'good') c.quizGood++;
+    if(q.round){ const r = rounds[q.round] || (rounds[q.round] = {n:0, good:0}); r.n++; if(q.g === 'good') r.good++; }
+  }
+  c.quizPerfect = Object.values(rounds).filter(r => r.n >= 3 && r.good === r.n).length;
+  for(const b of S.books) if(b.status === 'Read'){ c.books++; xp += XP.book; if(b.ideas.some(Boolean)){ xp += XP.ideas; card(b.finish); } }
+  xp += c.reviews * XP.review;
+  const ctx = { m, sumDays, quizDays, firstCard };
+  const days = new Set([...Object.keys(m), ...Object.keys(S.dailyLaws)]);
+  for(const k of days) if(questsFor(k, ctx).every(q => q.done)){ c.perfectDays++; xp += XP.perfect; }
+  const st = streaks(m); c.best = st.best;
+  const qd = Object.keys(m).filter(k => qualifies(m[k])).sort(), qs = new Set(qd);
+  c.perfectWeek = qd.some(k => parseKey(k).getDay() === 0 && [1,2,3,4,5,6].every(i => qs.has(addDays(k, -i))));
+  c.comeback = qd.some((k, i) => i > 0 && diffDays(qd[i-1], k) === 2);
+  const badges = BADGES.filter(b => b.t(c)).map(b => b.id);
+  xp += badges.length * XP.badge;
+  return { xp, c, badges, ctx, rank: rankOf(xp) };
+}
+let G = null, lastXP = null, lastRank = null, awardQ = [], awardBusy = false;
+function checkRewards(){
+  const g = game();
+  if(lastXP !== null && g.xp > lastXP) floatXP(g.xp - lastXP);
+  if(lastRank !== null && g.rank.n > lastRank) queueAward('🎉', `Rank ${g.rank.n + 1} reached`, g.rank.name);
+  const seen = new Set(S.seenBadges), fresh = g.badges.filter(id => !seen.has(id));
+  if(fresh.length){
+    S.seenBadges = [...seen, ...fresh]; save();
+    fresh.forEach(id => { const b = BADGES.find(x => x.id === id); queueAward(b.e, 'Badge unlocked · +50 XP', `${b.n}: ${b.d}`); });
+  }
+  lastXP = g.xp; lastRank = g.rank.n;
+  return g;
+}
+function queueAward(e, t, d){ awardQ.push({e, t, d}); if(!awardBusy) nextAward(); }
+function nextAward(){
+  const a = awardQ.shift(); if(!a){ awardBusy = false; return; }
+  awardBusy = true; const el = $('#award');
+  el.innerHTML = `<div class="aw-e">${a.e}</div><div><div class="eyebrow" style="color:var(--accent)">${esc(a.t)}</div><div class="btitle">${esc(a.d)}</div></div>`;
+  el.classList.add('show'); confetti();
+  try { navigator.vibrate && navigator.vibrate([40,60,40]); } catch(e){}
+  setTimeout(() => { el.classList.remove('show'); setTimeout(nextAward, 400); }, 3400);
+}
+function floatXP(n){ const el = document.createElement('div'); el.className = 'xpfloat'; el.textContent = `+${n} XP`; document.body.appendChild(el); setTimeout(() => el.remove(), 1700); }
+function confetti(){
+  const colors = ['var(--paper-c)','var(--audio-c)','var(--good)','#e0b13a','var(--accent)'];
+  for(let i = 0; i < 40; i++){
+    const s = document.createElement('i'); s.className = 'cf';
+    s.style.left = (5 + Math.random() * 90) + 'vw'; s.style.background = colors[i % colors.length];
+    s.style.animationDelay = (Math.random() * .35) + 's'; s.style.setProperty('--dx', (Math.random() * 140 - 70) + 'px'); s.style.setProperty('--r', (Math.random() * 900) + 'deg');
+    document.body.appendChild(s); setTimeout(() => s.remove(), 2600);
+  }
+}
+function rankCard(compact){
+  const r = G.rank, pct = clamp((G.xp - r.from) / (r.to - r.from) * 100, 0, 100);
+  return `<div class="row between"><div><div class="eyebrow">Rank ${r.n + 1}</div><div class="btitle" style="font-size:${compact?'1.05':'1.3'}rem">${r.name}</div></div>
+    <div style="text-align:right"><div class="stat" style="font-size:1.4rem">${G.xp.toLocaleString()}</div><div class="statlbl">XP</div></div></div>
+    <div class="bar" style="margin-top:8px"><i style="width:${pct}%;background:linear-gradient(90deg,var(--accent),#e0b13a)"></i></div>
+    <div class="tiny muted" style="margin-top:4px">${(r.to - G.xp).toLocaleString()} XP to <b>${r.next}</b></div>`;
+}
+function questsCard(){
+  const t = todayKey(), tg = targets(), qs = questsFor(t, G.ctx), due = dueCards().length;
+  const L = {
+    dl: { label: 'Read today\'s Daily Law', xp: XP.daily, act: 'dlLog' },
+    target: { label: `Read ${tg.paper} min on paper`, xp: XP.target, act: 'startTimer' },
+    summary: { label: 'Write a summary of what you read', xp: XP.summary, act: 'newNote' },
+    quiz: { label: due ? `Recall quiz (${due} card${due===1?'':'s'} due)` : 'Recall quiz (practise a few cards)', xp: '5/card', act: 'startQuiz' },
+  };
+  const done = qs.filter(q => q.done).length, all = done === qs.length;
+  return `<section class="card"><div class="tap" data-act="tab" data-id="learn">${rankCard(true)}</div>
+    <div class="hr"></div>
+    <div class="row between"><h3>Today's quests</h3><span class="chip ${all?'good':'accent'}">${done}/${qs.length}</span></div>
+    <ul class="list" style="margin-top:4px">${qs.map(q => `<li data-act="${q.done ? '' : L[q.id].act}" style="cursor:${q.done?'default':'pointer'};min-height:50px">
+      <span class="qbox ${q.done?'on':''}">${q.done ? '✓' : ''}</span><span class="grow ${q.done?'muted':''}" style="${q.done?'text-decoration:line-through':''}">${L[q.id].label}</span><span class="chip">+${L[q.id].xp}</span></li>`).join('')}</ul>
+    <div class="banner ${all?'good':'accent'}" style="margin-top:8px;padding:10px 12px"><div class="small">${all ? '🌟 <b>Perfect day!</b> +25 XP bonus earned.' : `Finish all ${qs.length} for a <b>+25 XP</b> perfect-day bonus.`}</div></div>
+  </section>`;
+}
+
+/* ---------- Recall quiz (spaced repetition from your own notes) ---------- */
+const INTERVALS = [1, 2, 4, 8, 16, 32, 64];
+const shuffle = a => { a = [...a]; for(let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+function allCards(){
+  const cards = [], t = todayKey();
+  for(const s of S.sessions){
+    const b = bookById(s.bookId);
+    if(hasSummary(s)) cards.push({ id:'r:' + s.id, type:'recall', s, b, created: s.date });
+    if(s.q && s.a) cards.push({ id:'q:' + s.id, type:'qa', s, b, created: s.date });
+  }
+  for(const b of S.books) if(b.status === 'Read' && b.ideas.some(Boolean)) cards.push({ id:'k:' + b.id, type:'ideas', b, created: b.finish || t });
+  for(const c of cards) c.st = S.cards[c.id] || { box: 0, due: addDays(c.created, 1) };
+  return cards;
+}
+const dueCards = () => allCards().filter(c => c.st.due <= todayKey()).sort((a, b) => a.st.due.localeCompare(b.st.due));
+const STOP = new Set('about above after again against almost already although always another anything around because become before being between beyond cannot could during either enough every everything having however itself little might moment myself never nothing others perhaps rather really should something sometimes still their themselves there therefore these thing things think those though through together toward towards under until whatever where whether which while within without would yourself people person'.split(' '));
+const wordsOf = text => (String(text).match(/[A-Za-z][A-Za-z'’-]{5,}/g) || []).filter(w => !STOP.has(w.toLowerCase()));
+function cloze(c){
+  const own = new Set(wordsOf(c.s.summary).map(w => w.toLowerCase()));
+  const pool = new Map();
+  for(const s of S.sessions) if(s !== c.s && s.summary) for(const w of wordsOf(s.summary)) if(!own.has(w.toLowerCase())) pool.set(w.toLowerCase(), w);
+  if(pool.size < 3) return null;
+  const sents = shuffle(c.s.summary.split(/(?<=[.!?])\s+|\n+/).map(x => x.trim()).filter(x => x.split(/\s+/).length >= 5));
+  for(const sent of sents){
+    const ws = shuffle(wordsOf(sent)); if(!ws.length) continue;
+    const w = ws[0], re = new RegExp('(^|[^A-Za-z])' + w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?![A-Za-z])');
+    const marked = sent.replace(re, '$1\u0000');
+    return { html: esc(marked).replace('\u0000', '<span class="blank">________</span>'), answer: w, options: shuffle([w, ...shuffle([...pool.values()]).slice(0, 3)]) };
+  }
+  return null;
+}
+let quiz = null;
+function startQuiz(){
+  let cards = dueCards(), practice = false;
+  if(!cards.length){ cards = shuffle(allCards()); practice = true; }
+  if(!cards.length){
+    openSheet('Recall quiz', `<div class="stack"><div class="quote">No cards yet</div>
+      <p class="ink2" style="text-align:center">Write a summary or a quiz question when you log your reading. Each one becomes a card. It comes back the next day, then after 2, 4, 8… days, so you remember it for good.</p>
+      <button class="btn primary block" data-act="newNote">Write a summary</button></div>`);
+    return;
+  }
+  quiz = { cards: cards.slice(0, practice ? 5 : 7), i: 0, res: [], practice, round: uid(), xp: 0 };
+  showQuizCard();
+}
+function showQuizCard(){
+  const Q = quiz, c = Q.cards[Q.i];
+  if(!c) return endQuiz();
+  const where = c.s ? [c.s.heading && esc(c.s.heading), c.s.fromPage ? `pages ${c.s.fromPage}–${c.s.toPage}` : '', fmtDate(c.s.date)].filter(Boolean).join(' · ') : (c.b.finish ? 'Finished ' + fmtDate(c.b.finish) : '');
+  const head = `<div class="row between"><span class="chip accent">Card ${Q.i + 1} of ${Q.cards.length}</span><span class="tiny muted">${Q.practice ? 'Practice round' : 'Due today'}</span></div>
+    <div class="row" style="gap:12px">${catBadge(c.b && c.b.category, 40)}<div><div class="btitle">${c.b ? esc(c.b.title) : 'Your notes'}</div><div class="tiny muted">${where}</div></div></div>`;
+  const cl = c.type === 'recall' && Math.random() < 0.6 ? cloze(c) : null;
+  if(cl){
+    openSheet('Recall quiz', `<div class="stack">${head}<div class="eyebrow">Fill in the blank</div>
+      <div class="card flat serif" style="font-size:1.12rem;line-height:1.5">${cl.html}</div>
+      <div class="stack" id="qOpts">${cl.options.map(o => `<button class="btn block" data-o="${esc(o)}">${esc(o)}</button>`).join('')}</div><div id="qAfter"></div></div>`, el => {
+      $$('#qOpts button', el).forEach(btn => btn.onclick = () => {
+        const ok = btn.dataset.o === cl.answer;
+        $$('#qOpts button', el).forEach(x => { x.disabled = true; if(x.dataset.o === cl.answer) x.classList.add('right'); });
+        if(!ok) btn.classList.add('wrong');
+        try { navigator.vibrate && navigator.vibrate(ok ? 30 : [60,40,60]); } catch(e){}
+        $('#qAfter', el).innerHTML = `<div class="banner ${ok ? 'good' : 'warn'}"><div><b>${ok ? 'Correct!' : 'Not quite.'}</b> Here's your full note:</div></div>
+          <div class="idea" style="white-space:pre-wrap">${esc(c.s.summary)}</div><button class="btn primary block" id="qNext" style="margin-top:10px">Next</button>`;
+        $('#qNext', el).onclick = () => gradeCard(ok ? 'good' : 'again');
+      });
+    });
+    return;
+  }
+  const prompt = c.type === 'qa' ? esc(c.s.q)
+    : c.type === 'ideas' ? `What were the 3 key ideas of <i>${esc(c.b.title)}</i>, and the action you chose?`
+    : `What were the key points of ${c.s.heading ? `<i>${esc(c.s.heading)}</i>` : 'this reading'}?`;
+  const answer = c.type === 'qa' ? esc(c.s.a)
+    : c.type === 'ideas' ? c.b.ideas.filter(Boolean).map((x, i) => `${i + 1}. ${esc(x)}`).join('\n') + (c.b.action ? `\n\nAction: ${esc(c.b.action)}` : '')
+    : esc(c.s.summary);
+  openSheet('Recall quiz', `<div class="stack">${head}<div class="quote" style="font-size:1.2rem">${prompt}</div>
+    <textarea class="inp" rows="3" placeholder="Answer from memory first (optional, but it works better)"></textarea>
+    <div id="qAfter"><button class="btn primary block" id="qShow">Show answer</button></div></div>`, el => {
+    $('#qShow', el).onclick = () => {
+      $('#qAfter', el).innerHTML = `<div class="idea" style="white-space:pre-wrap">${answer}</div><p class="small ink2" style="text-align:center;margin:10px 0 8px">How well did you remember it?</p>
+        <div class="grid3"><button class="btn" data-g="again">Forgot</button><button class="btn" data-g="hard">Partly</button><button class="btn primary" data-g="good">Got it</button></div>`;
+      $$('[data-g]', el).forEach(b => b.onclick = () => gradeCard(b.dataset.g));
     };
   });
 }
+function gradeCard(g){
+  const Q = quiz, c = Q.cards[Q.i], t = todayKey();
+  const xp = Q.practice ? (g === 'good' ? 2 : 1) : (g === 'good' ? 5 : g === 'hard' ? 3 : 1);
+  if(!Q.practice || g === 'again'){
+    const st = { ...c.st };
+    if(g === 'good') st.box = Math.min(st.box + 1, INTERVALS.length - 1);
+    if(g === 'again') st.box = 0;
+    st.due = addDays(t, g === 'hard' ? Math.max(1, Math.ceil(INTERVALS[st.box] / 2)) : INTERVALS[st.box]);
+    S.cards[c.id] = st;
+  }
+  S.quizLog.push({ date: t, id: c.id, g, xp, round: Q.round });
+  Q.res.push(g); Q.xp += xp; Q.i++; save(); showQuizCard();
+}
+function endQuiz(){
+  const Q = quiz; quiz = null;
+  const good = Q.res.filter(g => g === 'good').length, n = Q.res.length, left = dueCards().length;
+  openSheet('Quiz complete', `<div class="stack" style="text-align:center"><div style="font-size:3.2rem">${good === n ? '🌟' : good >= n / 2 ? '👍' : '🌱'}</div>
+    <div class="quote">${good} of ${n} remembered</div>
+    <p class="ink2">+${Q.xp} XP. ${good === n && n >= 3 ? 'Flawless!' : 'The cards you missed come back tomorrow.'}</p>
+    ${left ? `<button class="btn primary block" data-act="startQuiz">Keep going (${left} due)</button>` : ''}
+    <button class="btn block" data-act="closeSheet">Done</button></div>`);
+  render();
+}
+
+/* ---------- LEARN ---------- */
+function viewLearn(){
+  const cards = allCards(), t = todayKey(), due = cards.filter(c => c.st.due <= t).length, mastered = cards.filter(c => c.st.box >= 4).length;
+  const noteBooks = [...new Set(S.sessions.filter(s => s.heading || s.summary || s.q).map(s => s.bookId))].map(bookById).filter(Boolean);
+  return `<div class="stack"><header class="row between"><div><div class="eyebrow">Remember what you read</div><h1>Learn</h1></div>
+    <button class="iconbtn" data-act="tab" data-id="settings" aria-label="Settings">${ICON.settings}</button></header>
+  <section class="card">${rankCard()}</section>
+  <section class="card"><div class="row between"><h3>🧠 Recall quiz</h3><span class="chip ${due ? 'accent' : 'good'}">${due ? due + ' due' : 'all caught up'}</span></div>
+    <p class="small ink2">${cards.length ? `${plural(cards.length, 'card')} from your notes · ${mastered} mastered. A card comes back after 1, 2, 4, 8… days, and the gap grows each time you remember it.` : 'Write a summary or a quiz question when you log your reading, and each one becomes a quiz card here.'}</p>
+    ${cards.length ? `<button class="btn primary block" data-act="startQuiz">${due ? `Start quiz (${Math.min(due, 7)} cards)` : 'Practice anyway'}</button>` : `<button class="btn primary block" data-act="newNote">Write a summary</button>`}
+  </section>
+  <section class="card"><div class="row between"><h3>📓 Journal</h3><button class="btn sm" data-act="newNote">${ICON.plus.replace('<svg','<svg width="16" height="16"')} New entry</button></div>
+    <div class="grid2" style="margin-top:10px"><input class="inp" id="jq" type="search" placeholder="Search notes" value="${esc(ui.jq)}" style="margin:0">
+    <select class="inp" id="jb" style="margin:0"><option value="">All books</option>${noteBooks.map(b => `<option value="${b.id}" ${ui.jb===b.id?'selected':''}>${esc(b.title)}</option>`).join('')}</select></div>
+    <ul class="list" id="jList" style="margin-top:6px"></ul></section>
+  <section class="card"><div class="row between"><h3>🏅 Badges</h3><span class="small muted">${G.badges.length} / ${BADGES.length}</span></div>
+    <div class="badges">${BADGES.map(b => { const got = G.badges.includes(b.id); return `<button type="button" class="badge ${got ? '' : 'locked'}" data-act="badgeInfo" data-id="${b.id}"><span class="be">${b.e}</span><span class="bn">${esc(b.n)}</span></button>`; }).join('')}</div>
+    <div class="tip" id="tipBadge">Tap a badge to see how to earn it.</div></section>
+  <section class="card"><h3>How you earn XP</h3><ul class="small ink2" style="padding-left:18px;margin:8px 0 0;line-height:1.7">
+    <li>1 XP for every minute and every page</li><li>+15 for a summary, +5 for a quiz question</li>
+    <li>+10 for the Daily Law, +20 for hitting your daily target</li><li>+25 bonus when all of today's quests are done</li>
+    <li>Quiz: +5 got it, +3 partly, +1 forgot</li><li>+30 for a weekly review, +100 for a finished book (+20 with key ideas)</li><li>+50 for every badge</li></ul></section>
+  </div>`;
+}
+function journalRows(){
+  const q = (ui.jq || '').trim().toLowerCase();
+  const list = S.sessions.filter(s => (s.heading || s.summary || s.q) && (!ui.jb || s.bookId === ui.jb) &&
+    (!q || [s.heading, s.summary, s.q, s.a, (bookById(s.bookId) || {}).title].join(' ').toLowerCase().includes(q)))
+    .sort((a, b) => b.date.localeCompare(a.date) || (b.ts || 0) - (a.ts || 0));
+  return list.length ? list.slice(0, 150).map(s => entryRow(s, true)).join('') : `<li class="muted small">${q || ui.jb ? 'No notes match.' : 'No notes yet. Your summaries will appear here.'}</li>`;
+}
+function bindLearn(){
+  const upd = () => { $('#jList').innerHTML = journalRows(); };
+  upd();
+  $('#jq').addEventListener('input', e => { ui.jq = e.target.value; upd(); });
+  $('#jb').addEventListener('change', e => { ui.jb = e.target.value; upd(); });
+}
+
+/* ---------- Bored ---------- */
 let boredIdx = -1;
 function bored(){
   let i; do { i = Math.floor(Math.random() * BORED_TIPS.length); } while(i === boredIdx && BORED_TIPS.length > 1);
@@ -952,16 +1326,8 @@ function bookDetail(id){
     <div class="hr"></div>
     ${bookForm(b)}
     <button class="btn primary block" id="bSave">Save changes</button>
-    <details><summary>Sessions (${sess.length}) · log a past session</summary>
-      <div class="card flat" style="padding:12px;margin:6px 0 10px"><div class="grid3">
-        <label class="f">Date<input id="pDate" type="date" value="${todayKey()}" max="${todayKey()}"></label>
-        <label class="f">Min<input id="pMin" type="number" inputmode="numeric" min="0" placeholder="0"></label>
-        <label class="f">Pages<input id="pPages" type="number" inputmode="numeric" min="0" placeholder="0"></label></div>
-        <div class="seg" id="pKind" style="margin-top:10px"><button class="${b.format==='audio'?'':'on'}" data-k="paper">Paper</button><button class="${b.format==='audio'?'on':''}" data-k="audio">Audio</button></div>
-        <button class="btn block" id="pAdd" style="margin-top:10px">Add session</button></div>
-      <ul class="list">${sess.slice(0,30).map(s => `<li><div class="grow small"><b>${fmtDate(s.date)}</b> · ${s.minutes} min ${s.kind}${s.pages?` · ${s.pages} pages`:''}</div>
-        <button class="iconbtn" data-act="delSession" data-id="${s.id}" data-book="${id}" aria-label="Delete session">${ICON.x}</button></li>`).join('') || '<li class="muted small">No sessions yet.</li>'}</ul>
-    </details>
+    <div><div class="row between"><h3>Entries (${sess.length})</h3><button class="btn sm" id="dAdd">${ICON.plus.replace('<svg','<svg width="16" height="16"')} Add</button></div>
+      <ul class="list">${sess.slice(0,60).map(x => entryRow(x, false)).join('') || '<li class="muted small">No entries yet.</li>'}</ul></div>
     <button class="btn danger block" id="bDel">Delete book</button>
   </div>`, el => {
     $('#bSave', el).onclick = () => {
@@ -978,14 +1344,7 @@ function bookDetail(id){
     const c = $('#dCur', el); if(c) c.onclick = () => { setCurrent(id); render(); bookDetail(id); toast('Set as current book'); };
     const fi = $('#dFinish', el); if(fi) fi.onclick = () => finishForm(id);
     const ie = $('#dIdeas', el); if(ie) ie.onclick = () => finishForm(id, true);
-    let kind = b.format === 'audio' ? 'audio' : 'paper';
-    $$('#pKind button', el).forEach(x => x.onclick = () => { kind = x.dataset.k; $$('#pKind button', el).forEach(y => y.classList.toggle('on', y === x)); });
-    $('#pAdd', el).onclick = () => {
-      const m = num($('#pMin', el).value), p = num($('#pPages', el).value);
-      if(m <= 0 && p <= 0){ toast('Enter minutes or pages'); return; }
-      addSession({ date: $('#pDate', el).value || todayKey(), bookId: id, kind, minutes: m, pages: p });
-      render(); bookDetail(id); toast('Session added');
-    };
+    $('#dAdd', el).onclick = () => openLogSheet({ bookId: id, kind: b.format === 'audio' ? 'audio' : 'paper' });
     $('#bDel', el).onclick = () => {
       if(!confirm(`Delete "${b.title}"? Its sessions stay in your stats.`)) return;
       S.books = S.books.filter(x => x.id !== id);
@@ -1028,7 +1387,7 @@ function viewStats(){
   for(const s of S.sessions) if(s.date.slice(0,4) === y){ if(s.kind==='audio') amins += s.minutes; else mins += s.minutes; pages += s.pages || 0; }
   const booksYear = S.books.filter(b => b.status === 'Read' && (b.finish||'').slice(0,4) === y).length;
   const reviews = [...S.reviews].sort((a,b) => b.weekEnd.localeCompare(a.weekEnd));
-  return `<div class="stack"><header><div class="eyebrow">Your reading, honestly</div><h1>Stats</h1></header>
+  return `<div class="stack"><header class="row between"><div><div class="eyebrow">Your reading, honestly</div><h1>Stats</h1></div><button class="iconbtn" data-act="tab" data-id="settings" aria-label="Settings">${ICON.settings}</button></header>
     <div class="grid3">
       <div class="card" style="padding:12px"><div class="stat">${st.cur}</div><div class="statlbl">current streak</div></div>
       <div class="card" style="padding:12px"><div class="stat">${st.best}</div><div class="statlbl">longest streak</div></div>
@@ -1267,7 +1626,15 @@ const ACT = {
       <p class="small muted">The whole session is logged to the book you pick. To split time between books, stop and start a new session.</p>`);
   },
   setTimerBook: el => { if(S.timer){ S.timer.bookId = el.dataset.id; save(); } closeSheet(); drawTimer(); },
-  dailyLaws: el => { const t = todayKey(); if(el.checked) S.dailyLaws[t] = true; else delete S.dailyLaws[t]; save(); if(el.checked){ try{navigator.vibrate&&navigator.vibrate(20);}catch(e){} toast('Daily Law read. Good start.'); } },
+  dailyLaws: el => {
+    const t = todayKey(); if(el.checked) S.dailyLaws[t] = true; else delete S.dailyLaws[t]; save(); render();
+    if(el.checked){ try{navigator.vibrate&&navigator.vibrate(20);}catch(e){} ACT.dlLog(); }
+  },
+  dlLog: () => { const dl = S.books.find(b => b.track === 'Warm-up'); openLogSheet({ dl: true, bookId: dl ? dl.id : null, kind: 'paper' }); },
+  newNote: () => { const d = currentBook('Deep'); openLogSheet({ bookId: d ? d.id : null }); },
+  editEntry: el => { const x = S.sessions.find(s => s.id === el.dataset.id); if(x) openLogSheet({ session: x }); },
+  startQuiz: () => startQuiz(),
+  badgeInfo: el => { const b = BADGES.find(x => x.id === el.dataset.id), got = G.badges.includes(b.id); $('#tipBadge').innerHTML = `${b.e} <b>${esc(b.n)}</b>: ${esc(b.d)}${got ? ' · <span style="color:var(--good);font-weight:600">earned ✓</span>' : ''}`; },
   book: el => bookDetail(el.dataset.id),
   bookMenu: el => bookMenu(el.dataset.id),
   setCurrent: el => { setCurrent(el.dataset.id); render(); toast('Set as current book'); },
