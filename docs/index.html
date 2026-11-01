@@ -1,0 +1,1271 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Reading Habit</title>
+<meta name="description" content="A personal, offline reading-habit tracker.">
+<meta name="theme-color" content="#f4ede0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#191612" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{
+  color-scheme: light dark;
+  --bg:#f4ede0; --surface:#fbf7ee; --surface2:#efe6d6; --line:#e2d7c4;
+  --ink:#2a241e; --ink2:#5a4f43; --muted:#857865;
+  --accent:#8c3b22; --on-accent:#fff8f0; --accent-soft:#f1dfd3;
+  --good:#3f6f35; --good-soft:#e2ecd9; --warn-soft:#f5e7c8; --warn-ink:#6b4d10;
+  --paper-c:#b04a1c; --audio-c:#0f7aa0;
+  --shadow:0 1px 2px rgba(60,40,20,.08),0 4px 14px rgba(60,40,20,.06);
+  --serif: "Iowan Old Style","Palatino Linotype",Palatino,"Noto Serif",Georgia,serif;
+  --sans: system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --r:16px; --tabh:64px;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#191612; --surface:#221e19; --surface2:#2c2620; --line:#3a332a;
+    --ink:#ece3d3; --ink2:#c7bba8; --muted:#978b79;
+    --accent:#d9895a; --on-accent:#1d1611; --accent-soft:#3a2a20;
+    --good:#8fbf7a; --good-soft:#26301f; --warn-soft:#3a3020; --warn-ink:#e8cf96;
+    --paper-c:#d06a35; --audio-c:#2b98c0;
+    --shadow:0 1px 2px rgba(0,0,0,.3);
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.45;
+  -webkit-tap-highlight-color:transparent;min-height:100vh;overscroll-behavior-y:contain}
+button,input,select,textarea{font:inherit;color:inherit}
+h1,h2,h3{font-family:var(--serif);font-weight:600;margin:0;letter-spacing:.005em}
+h1{font-size:1.65rem;line-height:1.2}
+h2{font-size:1.25rem}
+h3{font-size:1.05rem}
+p{margin:.4em 0}
+.muted{color:var(--muted)} .ink2{color:var(--ink2)} .small{font-size:.87rem} .tiny{font-size:.78rem}
+.serif{font-family:var(--serif)}
+main{max-width:480px;margin:0 auto;padding:16px 16px calc(var(--tabh) + 92px + env(safe-area-inset-bottom))}
+.stack>*+*{margin-top:12px}
+.row{display:flex;gap:10px;align-items:center}
+.row.wrap{flex-wrap:wrap}
+.grow{flex:1;min-width:0}
+.between{justify-content:space-between}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:var(--shadow)}
+.card.flat{box-shadow:none}
+.card.tap{cursor:pointer}
+.card.hl{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset,var(--shadow)}
+.eyebrow{font-size:.75rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:600}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 18px;border-radius:14px;
+  border:1px solid var(--line);background:var(--surface);cursor:pointer;font-weight:600;text-decoration:none;color:var(--ink)}
+.btn:active{transform:scale(.98)}
+.btn.primary{background:var(--accent);color:var(--on-accent);border-color:transparent}
+.btn.big{min-height:64px;font-size:1.15rem;border-radius:18px;width:100%;font-family:var(--serif)}
+.btn.block{width:100%}
+.btn.ghost{background:transparent}
+.btn.danger{color:#b3261e;border-color:#e6b8b2}
+@media (prefers-color-scheme: dark){.btn.danger{color:#f2a49b;border-color:#5a2f2a}}
+.btn.sm{min-height:40px;padding:0 12px;font-size:.9rem;border-radius:12px}
+.link{background:none;border:none;color:var(--accent);font-weight:600;padding:8px 4px;min-height:40px;cursor:pointer}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.chip{display:inline-flex;align-items:center;gap:4px;font-size:.75rem;padding:2px 8px;border-radius:999px;background:var(--surface2);color:var(--ink2);white-space:nowrap}
+.chip.accent{background:var(--accent-soft);color:var(--accent)}
+.chip.good{background:var(--good-soft);color:var(--good)}
+.bar{height:8px;border-radius:99px;background:var(--surface2);overflow:hidden}
+.bar>i{display:block;height:100%;border-radius:99px;background:var(--accent);transition:width .4s}
+.bar.audio>i{background:var(--audio-c)}
+.bar.good>i{background:var(--good)}
+.banner{border-radius:var(--r);padding:12px 14px;display:flex;gap:10px;align-items:flex-start}
+.banner.warn{background:var(--warn-soft);color:var(--warn-ink)}
+.banner.good{background:var(--good-soft);color:var(--good)}
+.banner.accent{background:var(--accent-soft);color:var(--ink)}
+.banner b{font-weight:700}
+.stat{font-family:var(--serif);font-size:1.9rem;line-height:1;font-weight:600}
+.statlbl{font-size:.78rem;color:var(--muted);margin-top:4px}
+/* checkbox row */
+.check{display:flex;align-items:center;gap:14px;min-height:56px;cursor:pointer;user-select:none}
+.check input{position:absolute;opacity:0;pointer-events:none}
+.check .box{width:30px;height:30px;border-radius:9px;border:2px solid var(--muted);flex:none;display:grid;place-items:center;transition:.15s}
+.check input:checked+.box{background:var(--good);border-color:var(--good)}
+.check input:checked+.box::after{content:"";width:9px;height:15px;border:solid var(--surface);border-width:0 3px 3px 0;transform:translateY(-2px) rotate(45deg)}
+/* book card */
+.bookcard{display:flex;gap:14px;align-items:stretch}
+.spine{width:10px;border-radius:4px;flex:none;background:var(--paper-c)}
+.spine.Practical{background:var(--audio-c)}
+.spine.Warm-up{background:var(--muted)}
+.btitle{font-family:var(--serif);font-size:1.08rem;font-weight:600;line-height:1.25}
+/* lists */
+.list{list-style:none;margin:0;padding:0}
+.list li{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line);min-height:56px}
+.list li:first-child{border-top:none}
+.dot{width:10px;height:10px;border-radius:50%;flex:none;border:2px solid var(--muted)}
+.dot.Reading{border-color:var(--accent);background:var(--accent)}
+.dot.Read{border-color:var(--good);background:var(--good)}
+.dot.Dropped{border-color:var(--line);background:var(--line)}
+.dot.Reference{border-color:var(--ink2);background:transparent;border-style:dashed}
+.iconbtn{width:44px;height:44px;border-radius:12px;border:1px solid transparent;background:transparent;display:grid;place-items:center;cursor:pointer;flex:none;color:var(--ink2)}
+.iconbtn:active{background:var(--surface2)}
+/* forms */
+label.f{display:block;font-size:.85rem;color:var(--ink2);font-weight:600}
+label.f>input,label.f>select,label.f>textarea,.inp{display:block;width:100%;margin-top:6px;min-height:48px;border-radius:12px;border:1px solid var(--line);
+  background:var(--bg);padding:10px 12px;font-weight:400;font-size:1rem}
+textarea.inp,label.f>textarea{min-height:90px;resize:vertical;line-height:1.4}
+select{appearance:auto}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:1px}
+.seg{display:flex;background:var(--surface2);border-radius:14px;padding:4px;gap:4px}
+.seg button{flex:1;min-height:44px;border:none;border-radius:10px;background:transparent;font-weight:600;cursor:pointer;color:var(--ink2)}
+.seg button.on{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chips button{min-height:44px;min-width:56px;border-radius:12px;border:1px solid var(--line);background:var(--surface);font-weight:600;cursor:pointer}
+.chips button.on{background:var(--accent);color:var(--on-accent);border-color:transparent}
+/* tabs */
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surface);border-top:1px solid var(--line);
+  display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom)}
+nav.tabs .in{display:flex;width:100%;max-width:480px}
+nav.tabs button{flex:1;height:var(--tabh);border:none;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  font-size:.72rem;font-weight:600;color:var(--muted);cursor:pointer}
+nav.tabs button svg{width:24px;height:24px}
+nav.tabs button.on{color:var(--accent)}
+nav.tabs button.on .pill{background:var(--accent-soft)}
+nav.tabs .pill{padding:3px 16px;border-radius:99px;display:grid;place-items:center}
+/* mini timer */
+#mini{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--tabh) + 10px + env(safe-area-inset-bottom));z-index:19;
+  width:calc(100% - 32px);max-width:448px;display:none;background:var(--accent);color:var(--on-accent);border:none;border-radius:16px;min-height:56px;
+  padding:0 18px;font-weight:700;align-items:center;justify-content:space-between;box-shadow:0 6px 20px rgba(0,0,0,.2);cursor:pointer}
+#mini.show{display:flex}
+/* sheet */
+#scrim{position:fixed;inset:0;background:rgba(20,14,8,.45);z-index:40;opacity:0;pointer-events:none;transition:opacity .2s}
+#scrim.show{opacity:1;pointer-events:auto}
+#sheet{position:fixed;left:0;right:0;bottom:0;z-index:41;max-height:92vh;overflow:auto;background:var(--surface);border-radius:22px 22px 0 0;
+  padding:8px 16px calc(20px + env(safe-area-inset-bottom));transform:translateY(105%);visibility:hidden;transition:transform .25s ease,visibility 0s .25s;max-width:520px;margin:0 auto;
+  overscroll-behavior:contain}
+#sheet.show{transform:none;visibility:visible;transition:transform .25s ease}
+#sheet .grab{width:40px;height:5px;border-radius:9px;background:var(--line);margin:4px auto 12px}
+#sheet .shead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+/* timer */
+#timer{position:fixed;inset:0;z-index:30;background:var(--bg);display:none;flex-direction:column;align-items:center;justify-content:space-between;
+  padding:24px 20px calc(28px + env(safe-area-inset-bottom))}
+#timer.show{display:flex}
+#timer .clock{font-family:var(--serif);font-size:4.2rem;font-variant-numeric:tabular-nums;font-weight:600;letter-spacing:.02em}
+#timer .ring{position:relative;width:270px;height:270px;display:grid;place-items:center}
+#timer .ring svg{position:absolute;inset:0}
+#timer .ctrls{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;max-width:400px}
+/* toast */
+#toast{position:fixed;left:50%;top:16px;transform:translate(-50%,-140%);z-index:60;background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:14px;
+  font-weight:600;transition:transform .25s;max-width:calc(100% - 32px);text-align:center;box-shadow:0 6px 20px rgba(0,0,0,.25)}
+#toast.show{transform:translate(-50%,0)}
+/* charts */
+svg.chart{width:100%;height:auto;display:block;overflow:visible}
+svg.chart text{font-family:var(--sans);font-size:10px;fill:var(--muted)}
+.legend{display:flex;gap:14px;font-size:.8rem;color:var(--ink2);align-items:center;flex-wrap:wrap}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.tip{min-height:1.4em;font-size:.85rem;color:var(--ink2);margin-top:6px}
+.hm-0{fill:var(--surface2)}
+.hm-1{fill:color-mix(in oklab,var(--paper-c) 28%,var(--surface2))}
+.hm-2{fill:color-mix(in oklab,var(--paper-c) 52%,var(--surface2))}
+.hm-3{fill:color-mix(in oklab,var(--paper-c) 76%,var(--surface2))}
+.hm-4{fill:var(--paper-c)}
+.hm-f{fill:none;stroke:var(--line);stroke-dasharray:2 2}
+.hm-t{stroke:var(--ink);stroke-width:1.5}
+.sw{display:inline-block;width:12px;height:12px;border-radius:3px}
+.phasehead{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.swapbar{position:sticky;top:0;z-index:5;margin:-16px -16px 12px;padding:12px 16px;background:var(--accent);color:var(--on-accent);display:flex;align-items:center;justify-content:space-between;gap:10px;font-weight:600}
+.swapbar button{background:var(--on-accent);color:var(--accent);border:none;border-radius:10px;min-height:40px;padding:0 14px;font-weight:700}
+li.swappable{background:var(--accent-soft);border-radius:10px;padding-left:8px;cursor:pointer}
+.idea{padding:10px 12px;border-left:3px solid var(--accent);background:var(--surface2);border-radius:0 10px 10px 0;margin:6px 0}
+details>summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-weight:600;list-style:none}
+details>summary::-webkit-details-marker{display:none}
+.hr{height:1px;background:var(--line);margin:14px 0}
+.quote{font-family:var(--serif);font-size:1.35rem;line-height:1.35;text-align:center;padding:12px 4px}
+</style>
+</head>
+<body>
+<main id="main" aria-live="polite"></main>
+
+<button id="mini" type="button" data-act="openTimer"><span>Reading… <span id="miniTime">0:00</span></span><span>Open ›</span></button>
+
+<nav class="tabs" aria-label="Main">
+  <div class="in" id="tabs"></div>
+</nav>
+
+<section id="timer" aria-label="Reading timer"></section>
+<div id="scrim"></div>
+<section id="sheet" role="dialog" aria-modal="true"><div class="grab"></div><div id="sheetBody"></div></section>
+<div id="toast" role="status"></div>
+
+<script>
+'use strict';
+/* ==========================================================
+   Reading Habit — single-file offline app. Data: localStorage.
+   ========================================================== */
+const KEY = 'readingHabit.v1';
+const APP_VERSION = '1.0.0';
+
+/* ---------- Seed data ---------- */
+const SEED = `The Daily Laws | Robert Greene | Strategy | Daily | Warm-up | Reading
+The Death of Ivan Ilyich | Leo Tolstoy | Literature | 1 | Deep | To read
+Metamorphosis | Franz Kafka | Literature | 1 | Deep | To read
+Notes from Underground & The Double | Fyodor Dostoevsky | Literature | 1 | Deep | To read
+The Old Man and the Sea | Ernest Hemingway | Literature | 1 | Deep | To read
+The Myth of Sisyphus | Albert Camus | Philosophy | 1 | Deep | To read
+Dopamine Detox | Thibaut Meurisse | Self | 1 | Practical | To read
+The Four Agreements | Don Miguel Ruiz | Self | 1 | Practical | To read
+The Psychology of Money | Morgan Housel | Money | 1 | Practical | To read
+Courage Is Calling | Ryan Holiday | Stoicism | 1 | Practical | To read
+Crime and Punishment (Sinhala, 3 vols) | Fyodor Dostoevsky | Literature | 2 | Deep | To read
+Meditations | Marcus Aurelius | Stoicism | 2 | Deep | To read
+Letters from a Stoic | Seneca | Stoicism | 2 | Deep | To read
+Nausea | Jean-Paul Sartre | Philosophy | 2 | Deep | To read
+Getting to Yes | Roger Fisher & William Ury | People | 2 | Practical | To read
+Never Split the Difference | Chris Voss | People | 2 | Practical | To read
+Influence | Robert Cialdini | People | 2 | Practical | To read
+Read People Like a Book | Patrick King | People | 2 | Practical | To read
+The Republic | Plato | Philosophy | 3 | Deep | To read
+Art of Rhetoric | Aristotle | Philosophy | 3 | Deep | To read
+The Idiot | Fyodor Dostoevsky | Literature | 3 | Deep | To read
+So Good They Can't Ignore You | Cal Newport | Career | 3 | Practical | To read
+Extreme Ownership | Jocko Willink & Leif Babin | Leadership | 3 | Practical | To read
+The 7 Habits of Highly Effective People | Stephen Covey | Leadership | 3 | Practical | To read
+The 21 Irrefutable Laws of Leadership | John Maxwell | Leadership | 3 | Practical | To read
+Mastery | Robert Greene | Career | 3 | Practical | To read
+The Communist Manifesto | Marx & Engels | Philosophy | 4 | Deep | To read
+Great Expectations | Charles Dickens | Literature | 4 | Deep | To read
+The Personal MBA | Josh Kaufman | Business | 4 | Practical | To read
+The Almanack of Naval Ravikant | Eric Jorgenson | Business | 4 | Practical | To read
+Same as Ever | Morgan Housel | Money | 4 | Practical | To read
+Rich Dad Poor Dad | Robert Kiyosaki | Money | 4 | Practical | To read
+Zero to One | Peter Thiel | Business | 4 | Practical | To read
+Shoe Dog | Phil Knight | Business | 4 | Practical | To read
+The Millionaire Fastlane | MJ DeMarco | Money | 4 | Practical | To read
+Beyond Good and Evil | Friedrich Nietzsche | Philosophy | 5 | Deep | To read
+Thus Spoke Zarathustra | Friedrich Nietzsche | Philosophy | 5 | Deep | To read
+White Nights | Fyodor Dostoevsky | Literature | 5 | Deep | To read
+Thinking, Fast and Slow | Daniel Kahneman | Mind | 5 | Practical | To read
+The Laws of Human Nature | Robert Greene | Mind | 5 | Practical | To read
+Blink | Malcolm Gladwell | Mind | 5 | Practical | To read
+The Brain | David Eagleman | Mind | 5 | Practical | To read
+Sapiens | Yuval Noah Harari | Mind | 5 | Practical | To read
+The Brothers Karamazov | Fyodor Dostoevsky | Literature | 6 | Deep | To read
+The Upanishads | tr. Swami Paramananda | Spirituality | 6 | Deep | To read
+Autobiography of a Yogi | Paramahansa Yogananda | Spirituality | 6 | Practical | To read
+Karma | Sadhguru | Spirituality | 6 | Practical | To read
+Anna Karenina (2 vols) | Leo Tolstoy | Literature | 7 | Deep | To read
+Demons | Fyodor Dostoevsky | Literature | 7 | Deep | To read
+Notes from a Dead House (Sinhala) | Fyodor Dostoevsky | Literature | 7 | Deep | To read
+The 48 Laws of Power | Robert Greene | Strategy | 7 | Practical | To read
+The Art of War | Sun Tzu | Strategy | 7 | Practical | To read
+Show Your Work | Austin Kleon | Career | 7 | Practical | To read
+The Richest Man in Babylon | George S. Clason | Money | 7 | Practical | To read`;
+
+const PHASES = [
+  {n:1, months:'Nov 2026 – Jan 2027', start:'2026-11-01', end:'2027-01-31', focus:'Short classics and a calmer, less distracted mind'},
+  {n:2, months:'Feb – Apr 2027',      start:'2027-02-01', end:'2027-04-30', focus:'Stoicism and understanding people'},
+  {n:3, months:'May – Jul 2027',      start:'2027-05-01', end:'2027-07-31', focus:'Classical thought, career and leadership'},
+  {n:4, months:'Aug – Oct 2027',      start:'2027-08-01', end:'2027-10-31', focus:'Society, business and money'},
+  {n:5, months:'Nov 2027 – Jan 2028', start:'2027-11-01', end:'2028-01-31', focus:'Nietzsche and how the mind works'},
+  {n:6, months:'Feb – Apr 2028',      start:'2028-02-01', end:'2028-04-30', focus:'Spirituality and the inner life'},
+  {n:7, months:'May – Jul 2028',      start:'2028-05-01', end:'2028-07-31', focus:'Great novels and strategy'},
+];
+const STATUSES = ['To read','Reading','Read','Reference','Dropped'];
+const TRACKS = ['Deep','Practical','Warm-up'];
+const FORMATS = {paper:'Paper', audio:'Audio', both:'Paper + audio'};
+const DEFAULT_LEVELS = [
+  {fromWeek:1, paper:20, audio:0},
+  {fromWeek:3, paper:30, audio:15},
+  {fromWeek:5, paper:45, audio:25},
+  {fromWeek:9, paper:60, audio:30},
+];
+const BORED_TIPS = [
+  {t:'Just 10 more pages.', s:'Boredom often passes after a few pages. Set the book against the clock and push through 10.'},
+  {t:'Switch to your other book.', s:'Bored of the deep book? Pick up the practical one, and the other way round. Still reading, still counting.'},
+  {t:'Play the audiobook instead.', s:'Put your practical audiobook on, walk around and listen. Audio minutes count too.', audio:true},
+];
+
+/* ---------- Utilities ---------- */
+const $ = (s, el=document) => el.querySelector(s);
+const $$ = (s, el=document) => [...el.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad = n => String(n).padStart(2,'0');
+const keyOf = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const parseKey = k => { const [y,m,d] = k.split('-').map(Number); return new Date(y, m-1, d); };
+const todayKey = () => keyOf(new Date());
+const addDays = (k, n) => { const d = parseKey(k); d.setDate(d.getDate()+n); return keyOf(d); };
+const diffDays = (a, b) => { const A = parseKey(a), B = parseKey(b);
+  return Math.round((Date.UTC(B.getFullYear(),B.getMonth(),B.getDate()) - Date.UTC(A.getFullYear(),A.getMonth(),A.getDate()))/864e5); };
+const mondayOf = k => { const d = parseKey(k); const dow = (d.getDay()+6)%7; return addDays(k, -dow); };
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const MONTHS_LONG = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const fmtDate = k => { if(!k) return ''; const d = parseKey(k); return `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`; };
+const fmtShort = k => { const d = parseKey(k); return `${d.getDate()} ${MONTHS[d.getMonth()]}`; };
+const fmtLong = k => { const d = parseKey(k); return `${DAYS[d.getDay()]}, ${d.getDate()} ${MONTHS_LONG[d.getMonth()]}`; };
+const uid = () => 'x' + Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
+const num = (v, def=0) => { const n = parseInt(v, 10); return isNaN(n) ? def : n; };
+const plural = (n, w) => `${n} ${w}${n===1?'':'s'}`;
+
+/* ---------- State ---------- */
+let S;
+let storageOK = true;
+
+function seedBooks(){
+  const order = {};
+  return SEED.split('\n').map((line, i) => {
+    const [title, author, category, phase, track, status] = line.split('|').map(s => s.trim());
+    const ph = phase === 'Daily' ? 0 : Number(phase);
+    const g = ph + track; order[g] = (order[g] || 0) + 1;
+    return { id:'b'+(i+1), title, author, category, phase:ph, track,
+      format: track === 'Practical' ? 'both' : 'paper', status,
+      start: status === 'Reading' ? todayKey() : '', finish:'', notes:'', ideas:['','',''], action:'', order: order[g] };
+  });
+}
+function defaultState(){
+  const t = todayKey();
+  return {
+    version:1,
+    settings:{ name:'', startDate:t, levels: DEFAULT_LEVELS.map(l => ({...l})), manualLevel:0, lastExport:null, createdAt:t },
+    books: seedBooks(),
+    sessions: [],
+    dailyLaws: {},
+    current: { Deep:null, Practical:null },
+    reviews: [],
+    timer: null,
+  };
+}
+function normalize(s){
+  const d = defaultState();
+  s = Object.assign({}, d, s);
+  s.settings = Object.assign({}, d.settings, s.settings || {});
+  if(!Array.isArray(s.settings.levels) || s.settings.levels.length === 0) s.settings.levels = d.settings.levels;
+  s.books = Array.isArray(s.books) ? s.books : [];
+  s.books.forEach(b => { b.ideas = Array.isArray(b.ideas) ? b.ideas : ['','','']; b.phase = Number(b.phase) || 0; b.order = Number(b.order) || 0; });
+  s.sessions = Array.isArray(s.sessions) ? s.sessions : [];
+  s.dailyLaws = s.dailyLaws || {};
+  s.current = Object.assign({Deep:null, Practical:null}, s.current || {});
+  s.reviews = Array.isArray(s.reviews) ? s.reviews : [];
+  return s;
+}
+function load(){
+  try {
+    const raw = localStorage.getItem(KEY);
+    if(raw){ S = normalize(JSON.parse(raw)); return; }
+    localStorage.setItem('__t','1'); localStorage.removeItem('__t');
+  } catch(e){ storageOK = false; }
+  S = defaultState(); save();
+}
+function save(){
+  try { localStorage.setItem(KEY, JSON.stringify(S)); storageOK = true; }
+  catch(e){ storageOK = false; toast('Could not save. Please export a backup.'); }
+}
+
+/* ---------- Domain logic ---------- */
+const bookById = id => S.books.find(b => b.id === id);
+const byPhaseOrder = (a,b) => (a.phase - b.phase) || (a.order - b.order) || a.title.localeCompare(b.title);
+const phaseLabel = p => p === 0 ? 'Daily' : 'Phase ' + p;
+
+function currentPhase(k = todayKey()){
+  if(k < PHASES[0].start) return 1;
+  const p = PHASES.find(p => k >= p.start && k <= p.end);
+  return p ? p.n : 7;
+}
+function weekNum(k = todayKey()){
+  const d = diffDays(S.settings.startDate, k);
+  return d < 0 ? 0 : Math.floor(d/7) + 1;
+}
+function levels(){ return [...S.settings.levels].sort((a,b) => a.fromWeek - b.fromWeek); }
+function levelIndex(k = todayKey()){
+  const L = levels(), w = Math.max(1, weekNum(k));
+  let idx = 0; L.forEach((l,i) => { if(w >= l.fromWeek) idx = i; });
+  return clamp(Math.max(idx, S.settings.manualLevel || 0), 0, L.length - 1);
+}
+function targets(k = todayKey()){ const l = levels()[levelIndex(k)]; return { paper: l.paper, audio: l.audio, level: levelIndex(k) }; }
+function levelWeeksLabel(i){
+  const L = levels(), from = L[i].fromWeek, next = L[i+1];
+  return next ? (next.fromWeek - 1 === from ? `Week ${from}` : `Weeks ${from}–${next.fromWeek - 1}`) : `Week ${from}+`;
+}
+
+function dayMap(){
+  const m = {};
+  for(const s of S.sessions){
+    const d = m[s.date] || (m[s.date] = {paper:0, audio:0, pages:0});
+    d[s.kind === 'audio' ? 'audio' : 'paper'] += s.minutes || 0;
+    d.pages += s.pages || 0;
+  }
+  return m;
+}
+const qualifies = d => !!d && ((d.paper + d.audio) >= 10 || d.pages >= 10);
+function streaks(m = dayMap()){
+  const t = todayKey();
+  let k = qualifies(m[t]) ? t : addDays(t, -1), cur = 0;
+  while(qualifies(m[k])){ cur++; k = addDays(k, -1); }
+  const keys = Object.keys(m).filter(k => qualifies(m[k])).sort();
+  let best = 0, run = 0, prev = null;
+  for(const k of keys){ run = (prev && diffDays(prev, k) === 1) ? run + 1 : 1; best = Math.max(best, run); prev = k; }
+  return { cur, best: Math.max(best, cur), total: keys.length };
+}
+function bookTotals(id){
+  let paper = 0, audio = 0, pages = 0, n = 0;
+  for(const s of S.sessions) if(s.bookId === id){ n++; pages += s.pages || 0; if(s.kind === 'audio') audio += s.minutes; else paper += s.minutes; }
+  return { paper, audio, minutes: paper + audio, pages, n };
+}
+function currentBook(track){
+  const id = S.current[track], b = id && bookById(id);
+  if(b && b.track === track && (b.status === 'Reading' || b.status === 'To read')) return b;
+  return S.books.filter(b => b.track === track && b.status === 'Reading').sort(byPhaseOrder)[0] || null;
+}
+function nextBook(track, excludeId){
+  const cp = currentPhase();
+  const list = S.books.filter(b => b.track === track && b.status === 'To read' && b.id !== excludeId).sort(byPhaseOrder);
+  return list.find(b => b.phase >= cp) || list[0] || null;
+}
+function setCurrent(id){
+  const b = bookById(id); if(!b) return;
+  if(b.track === 'Deep' || b.track === 'Practical') S.current[b.track] = id;
+  if(b.status === 'To read' || b.status === 'Dropped') b.status = 'Reading';
+  if(!b.start) b.start = todayKey();
+  save();
+}
+function addSession(o){
+  S.sessions.push({ id: uid(), date: o.date || todayKey(), bookId: o.bookId || null, kind: o.kind, minutes: Math.max(0, num(o.minutes)), pages: Math.max(0, num(o.pages)), ts: Date.now() });
+  const b = o.bookId && bookById(o.bookId);
+  if(b && b.status === 'To read'){ b.status = 'Reading'; if(!b.start) b.start = o.date || todayKey(); }
+  save();
+}
+function exportDue(){
+  const last = S.settings.lastExport || S.settings.createdAt;
+  return diffDays(last.slice(0,10), todayKey()) >= 7;
+}
+function weekRange(k = todayKey()){ const mon = mondayOf(k); return { mon, sun: addDays(mon, 6) }; }
+
+/* ---------- Layers (sheet / timer) & Android back button ---------- */
+const layers = []; let suppressPop = 0, hasEntry = false;
+// One history entry represents "something is open", so Android's back button closes the top layer.
+function ensureEntry(){ if(!hasEntry && suppressPop === 0){ history.pushState({layer:1}, ''); hasEntry = true; } }
+function pushLayer(name, close){ layers.push({name, close}); ensureEntry(); }
+function popLayers(n){
+  n = Math.min(n, layers.length); if(!n) return;
+  for(let i = 0; i < n; i++) layers.pop().close();
+  if(!layers.length && hasEntry){ hasEntry = false; suppressPop++; history.back(); }
+}
+window.addEventListener('popstate', () => {
+  if(suppressPop > 0){ suppressPop--; if(layers.length) ensureEntry(); return; }
+  hasEntry = false;
+  const l = layers.pop(); if(l) l.close();
+  if(layers.length) ensureEntry();
+});
+const topLayer = () => layers.length ? layers[layers.length-1].name : null;
+
+let sheetOnClose = null;
+function openSheet(title, html, mount, onClose){
+  $('#sheetBody').innerHTML = `<div class="shead"><h2>${title}</h2><button class="iconbtn" data-act="closeSheet" aria-label="Close">${ICON.x}</button></div>${html}`;
+  sheetOnClose = onClose || null;
+  if(topLayer() !== 'sheet'){
+    $('#sheet').classList.add('show'); $('#scrim').classList.add('show');
+    pushLayer('sheet', hideSheet);
+  }
+  $('#sheet').scrollTop = 0;
+  if(mount) mount($('#sheetBody'));
+}
+function hideSheet(){
+  $('#sheet').classList.remove('show'); $('#scrim').classList.remove('show');
+  const cb = sheetOnClose; sheetOnClose = null; if(cb) cb();
+}
+function closeSheet(){ if(topLayer() === 'sheet') popLayers(1); }
+$('#scrim').addEventListener('click', closeSheet);
+
+let toastT;
+function toast(msg){ const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2600); }
+
+/* ---------- Icons ---------- */
+const sv = p => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
+const ICON = {
+  today: sv('<path d="M12 3v2M12 19v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M3 12h2M19 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/><circle cx="12" cy="12" r="4"/>'),
+  plan: sv('<path d="M4 5h16M4 12h10M4 19h7"/><circle cx="18" cy="17" r="3"/>'),
+  library: sv('<path d="M4 4h4v16H4zM10 4h4v16h-4z"/><path d="M16.5 4.5l3.5 1-4 14.6-3.5-1z"/>'),
+  stats: sv('<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>'),
+  settings: sv('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>'),
+  x: sv('<path d="M6 6l12 12M18 6L6 18"/>'),
+  more: sv('<circle cx="5" cy="12" r="1.3" fill="currentColor"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/><circle cx="19" cy="12" r="1.3" fill="currentColor"/>'),
+  book: sv('<path d="M2 5c3-1.5 6.5-1.5 10 1 3.5-2.5 7-2.5 10-1v14c-3-1.5-6.5-1.5-10 1-3.5-2.5-7-2.5-10-1z"/><path d="M12 6v14"/>'),
+  headphones: sv('<path d="M3 17v-4a9 9 0 0 1 18 0v4"/><rect x="2.5" y="14" width="5" height="7" rx="2"/><rect x="16.5" y="14" width="5" height="7" rx="2"/>'),
+  leaf: sv('<path d="M5 19c0-8 5-14 15-15-1 10-7 15-15 15z"/><path d="M5 19l7-7"/>'),
+  flame: sv('<path d="M12 22c4 0 7-2.7 7-7 0-4-3-6.5-4-10-2 2-2.5 4-2.5 5.5C11 9 10 7.5 10 5.5 7 8 5 11 5 15c0 4.3 3 7 7 7z"/>'),
+  play: sv('<path d="M7 4l13 8-13 8z" fill="currentColor"/>'),
+  pause: sv('<path d="M7 4h3v16H7zM14 4h3v16h-3z" fill="currentColor"/>'),
+  stop: sv('<rect x="5" y="5" width="14" height="14" rx="2" fill="currentColor"/>'),
+  plus: sv('<path d="M12 5v14M5 12h14"/>'),
+  up: sv('<path d="M6 15l6-6 6 6"/>'),
+  down: sv('<path d="M6 9l6 6 6-6"/>'),
+  cal: sv('<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>'),
+};
+
+/* ---------- Tabs & routing ---------- */
+const TABS = [['today','Today'],['plan','Plan'],['library','Library'],['stats','Stats'],['settings','Settings']];
+let tab = 'today';
+let ui = { q:'', fStatus:'', fCat:'', fPhase:'', fTrack:'', swapFrom:null, tipHeat:'', tipWeek:'', tipMonth:'' };
+
+function renderTabs(){
+  $('#tabs').innerHTML = TABS.map(([k,l]) =>
+    `<button type="button" class="${k===tab?'on':''}" data-act="tab" data-id="${k}" aria-current="${k===tab?'page':'false'}"><span class="pill">${ICON[k]}</span>${l}</button>`).join('');
+}
+function go(t){ tab = t; ui.swapFrom = null; render(); window.scrollTo(0,0); }
+function render(){
+  renderTabs();
+  const v = { today: viewToday, plan: viewPlan, library: viewLibrary, stats: viewStats, settings: viewSettings }[tab];
+  $('#main').innerHTML = v();
+  if(tab === 'library') bindLibrary();
+  if(tab === 'settings') bindSettings();
+  updateMini();
+}
+
+/* ---------- TODAY ---------- */
+function greeting(){
+  const h = new Date().getHours();
+  const g = h < 5 ? 'Still up' : h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+  return g + (S.settings.name ? ', ' + esc(S.settings.name) : '');
+}
+function routineHint(){
+  const h = new Date().getHours();
+  if(h >= 5 && h < 8) return 'Book before YouTube. Start with today\'s Daily Law, then open your deep book.';
+  if(h >= 8 && h < 13) return 'This is your free window. Paper book first, phone face down.';
+  if(h >= 13 && h < 16) return 'A few pages before work, or an audiobook while you get ready.';
+  if(h >= 16) return 'Work hours. Audio on a break counts. Paper can wait until tomorrow morning.';
+  return 'Late night. Ten pages, then sleep. Leave YouTube for after the book.';
+}
+function viewToday(){
+  const t = todayKey(), m = dayMap(), d = m[t] || {paper:0,audio:0,pages:0};
+  const tg = targets(), w = weekNum(), st = streaks(m);
+  const paperMet = d.paper >= tg.paper, audioMet = tg.audio === 0 || d.audio >= tg.audio;
+  const yesterday = addDays(t, -1);
+  const missedYesterday = !qualifies(m[yesterday]) && diffDays(S.settings.startDate, yesterday) >= 0 && !qualifies(d);
+  const isSunday = parseKey(t).getDay() === 0;
+  const reviewDone = S.reviews.some(r => r.weekEnd === weekRange().sun);
+  const deep = currentBook('Deep'), prac = currentBook('Practical');
+  const dl = S.books.find(b => b.track === 'Warm-up');
+  const dlDate = parseKey(t);
+  let h = `<div class="stack">
+  <header style="padding-top:6px">
+    <div class="eyebrow">${fmtLong(t)}</div>
+    <h1 style="margin-top:4px">${greeting()}</h1>
+    <p class="ink2 small" style="margin-top:6px">${routineHint()}</p>
+  </header>`;
+
+  if(!storageOK) h += `<div class="banner warn"><div><b>Storage isn't available.</b> Your data may not be kept. Export often, or open the installed app.</div></div>`;
+  if(exportDue()) h += `<div class="banner warn"><div class="grow"><b>Time for a backup.</b> ${S.settings.lastExport ? 'Your last export was ' + fmtDate(S.settings.lastExport.slice(0,10)) + '.' : 'You haven\'t exported yet.'} Browser storage can be cleared, so keep a copy.</div><button class="btn sm" data-act="export">Export</button></div>`;
+  if(isSunday && !reviewDone) h += `<div class="banner accent"><div class="grow"><b>It's Sunday: time for the weekly review.</b> Two minutes to look back at the week.</div><button class="btn sm primary" data-act="review">Review</button></div>`;
+
+  // target card
+  const pct = tg.paper ? clamp(d.paper / tg.paper * 100, 0, 100) : 100;
+  const apct = tg.audio ? clamp(d.audio / tg.audio * 100, 0, 100) : 0;
+  h += `<section class="card">
+    <div class="row between"><div class="eyebrow">${w ? `Week ${w} · Level ${tg.level+1}` : 'Before your start date'}</div>
+      <div class="row" style="gap:6px;color:var(--accent)" title="Current streak">${ICON.flame.replace('<svg','<svg width="20" height="20"')}<b>${st.cur}</b><span class="small muted">day${st.cur===1?'':'s'}</span></div></div>
+    ${w === 0 ? `<p class="small muted">Your plan starts ${fmtDate(S.settings.startDate)}. You can still read and log today.</p>` : ''}
+    <div class="row between" style="margin-top:10px"><div><span class="stat">${d.paper}</span><span class="muted"> / ${tg.paper} min</span></div><span class="chip">${ICON.book.replace('<svg','<svg width="14" height="14"')} Paper</span></div>
+    <div class="bar ${paperMet?'good':''}" style="margin-top:8px"><i style="width:${pct}%"></i></div>
+    <div class="row between small" style="margin-top:12px"><span>Audio: <b>${d.audio}</b> ${tg.audio ? '/ ' + tg.audio + ' min' : 'min <span class="muted">(optional this week)</span>'}</span><span class="muted">${d.pages} pages today</span></div>
+    ${tg.audio ? `<div class="bar audio" style="margin-top:6px"><i style="width:${apct}%"></i></div>` : ''}
+  </section>`;
+
+  if(paperMet && tg.paper > 0) h += `<div class="banner good"><div><b>Reward unlocked: YouTube is fine now.</b><br>Book first, video after.${audioMet ? '' : ' <span class="small">(Audio target still open.)</span>'}</div></div>`;
+  else if(missedYesterday) h += `<div class="banner warn"><div><b>Never miss twice.</b> Just 10 pages today keeps the streak alive.</div></div>`;
+
+  h += `<button class="btn primary big" data-act="startTimer">${S.timer ? 'Back to timer' : 'Start reading'}</button>
+  <div class="grid2"><button class="btn" data-act="logAudio">${ICON.headphones.replace('<svg','<svg width="20" height="20"')} Log audio</button>
+  <button class="btn" data-act="bored">Bored?</button></div>`;
+
+  // daily laws
+  h += `<section class="card" style="padding:4px 16px">
+    <label class="check"><input type="checkbox" id="dlCheck" data-act="dailyLaws" ${S.dailyLaws[t] ? 'checked' : ''}><span class="box"></span>
+    <span class="grow"><span class="btitle">The Daily Laws</span><br><span class="small muted">Warm-up: today's entry is ${dlDate.getDate()} ${MONTHS_LONG[dlDate.getMonth()]}</span></span></label>
+  </section>`;
+
+  h += bookCardToday('Deep', deep) + bookCardToday('Practical', prac);
+  h += `<p class="small muted" style="text-align:center">A day counts towards the streak at 10 minutes or 10 pages. Longest streak: ${plural(st.best,'day')}.</p></div>`;
+  return h;
+}
+function bookCardToday(track, b){
+  const label = track === 'Deep' ? 'Deep · paper' : 'Practical · often audio';
+  if(!b){
+    const n = nextBook(track);
+    return `<section class="card"><div class="eyebrow">${label}</div>
+      <p class="ink2">No current ${track.toLowerCase()} book.</p>
+      ${n ? `<button class="btn block" data-act="setCurrent" data-id="${n.id}">Start "${esc(n.title)}"</button>` : ''}
+      <button class="link" data-act="pickCurrent" data-id="${track}">Choose another…</button></section>`;
+  }
+  const t = bookTotals(b.id);
+  return `<section class="card tap bookcard" data-act="book" data-id="${b.id}">
+    <div class="spine ${track}"></div>
+    <div class="grow">
+      <div class="row between"><div class="eyebrow">${label}</div><button class="link" style="padding:0 4px;min-height:32px" data-act="pickCurrent" data-id="${track}">Change</button></div>
+      <div class="btitle">${esc(b.title)}</div>
+      <div class="small muted">${esc(b.author)} · ${phaseLabel(b.phase)}</div>
+      <div class="small ink2" style="margin-top:6px">${t.minutes} min · ${t.pages} pages${b.start ? ' · since ' + fmtShort(b.start) : ''}</div>
+    </div></section>`;
+}
+function pickCurrent(track){
+  const list = S.books.filter(b => b.track === track && (b.status === 'To read' || b.status === 'Reading')).sort(byPhaseOrder);
+  const cur = currentBook(track);
+  openSheet(`Choose ${track.toLowerCase()} book`, `<ul class="list">${list.map(b => `<li class="tap" data-act="chooseCurrent" data-id="${b.id}" style="cursor:pointer">
+    <span class="dot ${b.status}"></span><div class="grow"><div class="btitle">${esc(b.title)}</div><div class="small muted">${esc(b.author)} · ${phaseLabel(b.phase)} · ${b.status}</div></div>
+    ${cur && cur.id === b.id ? '<span class="chip accent">Current</span>' : ''}</li>`).join('') || '<li class="muted">No books available in this track.</li>'}</ul>`);
+}
+
+/* ---------- Timer ---------- */
+let timerInt = null;
+const timerElapsed = () => S.timer ? S.timer.acc + (S.timer.startedAt ? Date.now() - S.timer.startedAt : 0) : 0;
+const fmtClock = ms => { const s = Math.floor(ms/1000), h = Math.floor(s/3600), m = Math.floor(s/60)%60, x = s%60; return h ? `${h}:${pad(m)}:${pad(x)}` : `${m}:${pad(x)}`; };
+function startTimer(){
+  if(!S.timer){
+    const d = dayMap()[todayKey()] || {paper:0}, tg = targets();
+    const deep = currentBook('Deep');
+    S.timer = { startedAt: Date.now(), acc: 0, bookId: deep ? deep.id : null, date: todayKey(), base: d.paper, vibrated: d.paper >= tg.paper };
+    save();
+    try { navigator.vibrate && navigator.vibrate(30); } catch(e){}
+    requestPersist();
+  }
+  openTimer();
+}
+function openTimer(){
+  if(!S.timer) return;
+  if(!layers.some(l => l.name === 'timer')){
+    $('#timer').classList.add('show'); pushLayer('timer', hideTimer);
+  }
+  drawTimer(); clearInterval(timerInt); timerInt = setInterval(tickTimer, 500);
+  updateMini();
+}
+function hideTimer(){ $('#timer').classList.remove('show'); clearInterval(timerInt); timerInt = null; render(); }
+function drawTimer(){
+  const tg = targets(), T = S.timer, b = bookById(T.bookId);
+  $('#timer').innerHTML = `
+    <div style="text-align:center;width:100%">
+      <div class="row between" style="width:100%"><button class="iconbtn" data-act="minTimer" aria-label="Minimise">${ICON.down}</button>
+      <div class="eyebrow">Reading</div><button class="btn sm ghost" data-act="bored">Bored?</button></div>
+      <div class="btitle" style="margin-top:10px" data-act="timerBook">${b ? esc(b.title) : 'You\'ll pick the book when you stop'}</div>
+      <div class="small muted">Phone face down. The timer keeps running.</div>
+    </div>
+    <div class="ring">
+      <svg viewBox="0 0 270 270"><circle cx="135" cy="135" r="120" fill="none" stroke="var(--surface2)" stroke-width="12"/>
+      <circle id="tRing" cx="135" cy="135" r="120" fill="none" stroke="var(--accent)" stroke-width="12" stroke-linecap="round" transform="rotate(-90 135 135)" stroke-dasharray="754" stroke-dashoffset="754"/></svg>
+      <div style="text-align:center"><div class="clock" id="tClock">0:00</div><div class="small ink2" id="tSub"></div></div>
+    </div>
+    <div style="width:100%;max-width:400px">
+      <p id="tMsg" class="small" style="text-align:center;min-height:2.6em;margin:0 0 12px"></p>
+      <div class="ctrls">
+        <button class="btn big" id="tPause" data-act="pauseTimer"></button>
+        <button class="btn big primary" data-act="stopTimer">${ICON.stop.replace('<svg','<svg width="20" height="20"')} Stop</button>
+      </div>
+    </div>`;
+  tickTimer();
+}
+function tickTimer(){
+  if(!S.timer) return;
+  const tg = targets(), el = timerElapsed(), T = S.timer;
+  const total = T.base + el/60000;
+  const c = $('#tClock'); if(!c) return;
+  c.textContent = fmtClock(el);
+  const left = Math.max(0, Math.ceil(tg.paper - total));
+  $('#tSub').textContent = tg.paper ? (left > 0 ? `Target ${tg.paper} min · ${left} to go` : `Target ${tg.paper} min reached`) : '';
+  const frac = tg.paper ? clamp(total / tg.paper, 0, 1) : 1;
+  $('#tRing').setAttribute('stroke-dashoffset', String(754 * (1 - frac)));
+  $('#tRing').setAttribute('stroke', frac >= 1 ? 'var(--good)' : 'var(--accent)');
+  $('#tPause').innerHTML = T.startedAt ? `${ICON.pause.replace('<svg','<svg width="20" height="20"')} Pause` : `${ICON.play.replace('<svg','<svg width="20" height="20"')} Resume`;
+  $('#tMsg').innerHTML = !T.startedAt ? 'Paused.' : (total >= tg.paper && tg.paper ? '<b style="color:var(--good)">Target reached.</b> Keep going if the book has you, or stop and log it.' : 'Book first, video after.');
+  if(!T.vibrated && tg.paper && total >= tg.paper){
+    T.vibrated = true; save();
+    try { navigator.vibrate && navigator.vibrate([250,120,250,120,400]); } catch(e){}
+  }
+}
+function updateMini(){
+  const show = !!S.timer && !$('#timer').classList.contains('show');
+  $('#mini').classList.toggle('show', show);
+  if(show) $('#miniTime').textContent = fmtClock(timerElapsed()) + (S.timer.startedAt ? '' : ' (paused)');
+}
+setInterval(() => { if(S && S.timer && !$('#timer').classList.contains('show')) updateMini(); }, 1000);
+function pauseTimer(){
+  const T = S.timer; if(!T) return;
+  if(T.startedAt){ T.acc += Date.now() - T.startedAt; T.startedAt = null; } else T.startedAt = Date.now();
+  save(); tickTimer();
+}
+function bookOptions(selId, filter){
+  const list = S.books.filter(b => filter ? filter(b) : (b.status === 'Reading' || b.id === selId)).sort((a,b) => TRACKS.indexOf(a.track) - TRACKS.indexOf(b.track) || byPhaseOrder(a,b));
+  return list.map(b => `<option value="${b.id}" ${b.id===selId?'selected':''}>${esc(b.title)} (${b.track})</option>`).join('') + `<option value="" ${!selId?'selected':''}>Other / not in library</option>`;
+}
+function stopTimer(){
+  const T = S.timer; if(!T) return;
+  if(T.startedAt){ T.acc += Date.now() - T.startedAt; T.startedAt = null; save(); }
+  tickTimer();
+  const mins = Math.max(1, Math.round(T.acc / 60000));
+  openSheet('Log this session', `<div class="stack">
+    <p class="ink2">You read for <b>${fmtClock(T.acc)}</b>. Nice.</p>
+    <label class="f">Book<select id="sBook">${bookOptions(T.bookId)}</select></label>
+    <div class="grid2"><label class="f">Minutes<input id="sMin" type="number" inputmode="numeric" min="1" value="${mins}"></label>
+    <label class="f">Pages read <span class="muted">(optional)</span><input id="sPages" type="number" inputmode="numeric" min="0" placeholder="0"></label></div>
+    <button class="btn primary block" id="sSave">Save session</button>
+    <div class="grid2"><button class="btn" id="sResume">Keep reading</button><button class="btn danger" id="sDiscard">Discard</button></div>
+  </div>`, el => {
+    $('#sSave', el).onclick = () => {
+      const minutes = num($('#sMin', el).value), pages = num($('#sPages', el).value);
+      if(minutes <= 0 && pages <= 0){ toast('Enter minutes or pages'); return; }
+      addSession({ date: T.date || todayKey(), bookId: $('#sBook', el).value, kind:'paper', minutes, pages });
+      S.timer = null; save(); popLayers(layers.length);
+      const d = dayMap()[todayKey()], tg = targets();
+      toast(d && d.paper >= tg.paper ? 'Target met. Reward unlocked.' : `Logged ${minutes} min.`);
+    };
+    $('#sResume', el).onclick = () => { S.timer.startedAt = Date.now(); save(); closeSheet(); tickTimer(); };
+    $('#sDiscard', el).onclick = () => { if(confirm('Discard this session without logging it?')){ S.timer = null; save(); popLayers(layers.length); } };
+  });
+}
+
+/* ---------- Audio / bored / daily laws ---------- */
+function logAudio(){
+  const p = currentBook('Practical');
+  let sel = 15;
+  openSheet('Log audio', `<div class="stack">
+    <label class="f">Book<select id="aBook">${bookOptions(p && p.id, b => b.status === 'Reading' || (p && b.id === p.id) || (b.format !== 'paper' && b.status === 'To read'))}</select></label>
+    <div><div class="f" style="font-size:.85rem;font-weight:600;color:var(--ink2);margin-bottom:6px">Minutes</div>
+    <div class="chips" id="aChips">${[10,15,20,30,45,60].map(n => `<button type="button" data-n="${n}" class="${n===sel?'on':''}">${n}</button>`).join('')}</div>
+    <input class="inp" id="aMin" type="number" inputmode="numeric" min="1" value="${sel}" aria-label="Minutes"></div>
+    <label class="f">Date<input id="aDate" type="date" value="${todayKey()}" max="${todayKey()}"></label>
+    <button class="btn primary block" id="aSave">Save audio</button></div>`, el => {
+    $$('#aChips button', el).forEach(b => b.onclick = () => { $$('#aChips button', el).forEach(x => x.classList.remove('on')); b.classList.add('on'); $('#aMin', el).value = b.dataset.n; });
+    $('#aSave', el).onclick = () => {
+      const minutes = num($('#aMin', el).value); if(minutes <= 0){ toast('Enter minutes'); return; }
+      addSession({ date: $('#aDate', el).value || todayKey(), bookId: $('#aBook', el).value, kind:'audio', minutes });
+      closeSheet(); render(); toast(`Logged ${minutes} audio min.`);
+    };
+  });
+}
+let boredIdx = -1;
+function bored(){
+  let i; do { i = Math.floor(Math.random() * BORED_TIPS.length); } while(i === boredIdx && BORED_TIPS.length > 1);
+  boredIdx = i; const tip = BORED_TIPS[i];
+  const deep = currentBook('Deep'), prac = currentBook('Practical');
+  const dp = deep ? bookTotals(deep.id).pages : 0;
+  let other = '';
+  if(i === 1 && deep && prac) other = `<p class="small ink2" style="text-align:center">Your other book: <b>${esc(prac.title)}</b></p>`;
+  openSheet('Bored?', `<div class="stack">
+    <div class="quote">${tip.t}</div>
+    <p class="ink2" style="text-align:center">${tip.s}</p>${other}
+    <div class="banner accent"><div><b>The 50-page rule:</b> if a book still bores you after 50 pages, swap it for another in the same phase.
+    ${deep ? `<br><span class="small">${esc(deep.title)}: ${dp} page${dp===1?'':'s'} logged${dp >= 50 ? '. You\'ve given it a fair try, so swapping is allowed.' : ` so far, ${50-dp} to go before you can swap.`}</span>` : ''}</div></div>
+    ${tip.audio ? '<button class="btn primary block" id="bAudio">Log audio</button>' : ''}
+    <div class="grid2"><button class="btn" id="bAgain">Another idea</button><button class="btn primary" data-act="closeSheet">Back to the book</button></div>
+    ${deep && dp >= 50 ? `<button class="link" data-act="pickCurrent" data-id="Deep">Swap the deep book…</button>` : ''}
+  </div>`, el => {
+    $('#bAgain', el).onclick = bored;
+    const a = $('#bAudio', el); if(a) a.onclick = logAudio;
+  });
+}
+
+/* ---------- PLAN ---------- */
+function viewPlan(){
+  const cp = currentPhase(), nd = nextBook('Deep'), np = nextBook('Practical');
+  let h = '';
+  if(ui.swapFrom){ const b = bookById(ui.swapFrom); h += `<div class="swapbar"><span>Tap a book to swap with "${esc(b ? b.title : '')}"</span><button data-act="cancelSwap">Cancel</button></div>`; }
+  h += `<div class="stack"><header><div class="eyebrow">Your 21-month plan</div><h1>Plan</h1></header>
+  <section class="card flat"><div class="eyebrow">Next up</div>
+    <div class="row" style="margin-top:8px"><span class="spine" style="height:36px;width:6px"></span><div class="grow"><div class="small muted">Deep</div><div class="btitle">${nd ? esc(nd.title) : '-'}</div></div></div>
+    <div class="row" style="margin-top:10px"><span class="spine Practical" style="height:36px;width:6px"></span><div class="grow"><div class="small muted">Practical</div><div class="btitle">${np ? esc(np.title) : '-'}</div></div></div>
+  </section>`;
+  const warm = S.books.filter(b => b.phase === 0).sort(byPhaseOrder);
+  if(warm.length) h += `<section class="card"><div class="phasehead"><h3>Daily warm-up</h3><span class="small muted">every morning</span></div><ul class="list">${warm.map(b => planRow(b)).join('')}</ul></section>`;
+  for(const p of PHASES){
+    const books = S.books.filter(b => b.phase === p.n);
+    const counted = books.filter(b => b.status !== 'Dropped' && b.status !== 'Reference');
+    const read = counted.filter(b => b.status === 'Read').length;
+    const pct = counted.length ? Math.round(read / counted.length * 100) : 0;
+    const deep = books.filter(b => b.track === 'Deep').sort(byPhaseOrder), prac = books.filter(b => b.track !== 'Deep').sort(byPhaseOrder);
+    h += `<section class="card ${p.n===cp?'hl':''}" id="phase${p.n}">
+      <div class="phasehead"><h2>Phase ${p.n}</h2>${p.n===cp ? '<span class="chip accent">Now</span>' : `<span class="small muted">${p.months}</span>`}</div>
+      ${p.n===cp ? `<div class="small muted">${p.months}</div>` : ''}
+      <p class="ink2 small serif" style="font-size:.95rem">${p.focus}</p>
+      <div class="row small" style="gap:10px;margin:8px 0 4px"><div class="bar good grow"><i style="width:${pct}%"></i></div><span class="muted">${read}/${counted.length} read</span></div>
+      <div class="eyebrow" style="margin-top:12px">Deep</div><ul class="list">${deep.map(b => planRow(b, nd)).join('') || '<li class="muted small">No books</li>'}</ul>
+      <div class="eyebrow" style="margin-top:8px">Practical</div><ul class="list">${prac.map(b => planRow(b, np)).join('') || '<li class="muted small">No books</li>'}</ul>
+    </section>`;
+  }
+  return h + '</div>';
+}
+function planRow(b, next){
+  const isNext = next && next.id === b.id;
+  const isCur = S.current[b.track] === b.id || (currentBook(b.track) || {}).id === b.id;
+  const swap = ui.swapFrom && ui.swapFrom !== b.id;
+  return `<li class="${swap?'swappable':''}" ${swap ? `data-act="doSwap" data-id="${b.id}"` : ''}>
+    <span class="dot ${b.status}" title="${b.status}"></span>
+    <div class="grow" ${swap ? '' : `data-act="book" data-id="${b.id}" style="cursor:pointer"`}>
+      <div class="serif" style="font-weight:600;line-height:1.25;${b.status==='Dropped'?'text-decoration:line-through;opacity:.6':''}">${esc(b.title)}</div>
+      <div class="tiny muted">${esc(b.author)}${isCur && b.status==='Reading' ? ' · <span style="color:var(--accent);font-weight:600">reading now</span>' : ''}${isNext ? ' · <span style="color:var(--accent);font-weight:600">next up</span>' : ''}${b.status==='Read' ? ' · read' : ''}</div>
+    </div>
+    ${swap ? '' : `<button class="iconbtn" data-act="bookMenu" data-id="${b.id}" aria-label="Options for ${esc(b.title)}">${ICON.more}</button>`}
+  </li>`;
+}
+function groupOf(b){ return S.books.filter(x => x.phase === b.phase && x.track === b.track).sort(byPhaseOrder); }
+function renumber(list){ list.forEach((b,i) => b.order = i + 1); }
+function moveBook(id, dir){
+  const b = bookById(id), g = groupOf(b), i = g.indexOf(b), j = i + dir;
+  if(j < 0 || j >= g.length) return;
+  [g[i], g[j]] = [g[j], g[i]]; renumber(g); save();
+}
+function moveToPhase(id, phase){
+  const b = bookById(id); const old = groupOf(b).filter(x => x !== b);
+  b.phase = phase; renumber(old);
+  b.order = Math.max(0, ...groupOf(b).filter(x => x !== b).map(x => x.order)) + 1; save();
+}
+function swapBooks(a, b){
+  const A = bookById(a), B = bookById(b); if(!A || !B) return;
+  [A.phase, B.phase] = [B.phase, A.phase]; [A.order, B.order] = [B.order, A.order];
+  if(A.track !== B.track){ renumber(groupOf(A)); renumber(groupOf(B)); }
+  save();
+}
+function bookMenu(id){
+  const b = bookById(id), g = groupOf(b), i = g.indexOf(b);
+  openSheet(esc(b.title), `<div class="stack">
+    <p class="small muted" style="margin-top:-8px">${esc(b.author)} · ${phaseLabel(b.phase)} · ${b.track} · ${b.status}</p>
+    <div class="grid2"><button class="btn" id="mUp" ${i<=0?'disabled':''}>${ICON.up.replace('<svg','<svg width="18" height="18"')} Move up</button>
+    <button class="btn" id="mDown" ${i>=g.length-1?'disabled':''}>${ICON.down.replace('<svg','<svg width="18" height="18"')} Move down</button></div>
+    <div><div class="eyebrow" style="margin-bottom:8px">Move to phase</div>
+    <div class="chips">${[1,2,3,4,5,6,7].map(n => `<button data-ph="${n}" class="${b.phase===n?'on':''}">${n}</button>`).join('')}</div></div>
+    <button class="btn block" id="mSwap">Swap with another book…</button>
+    ${(b.track==='Deep'||b.track==='Practical') && b.status!=='Read' ? `<button class="btn block" id="mCur">Read this now (set as current)</button>` : ''}
+    <button class="btn primary block" id="mOpen">Open details</button></div>`, el => {
+    $('#mUp', el).onclick = () => { moveBook(id, -1); render(); bookMenu(id); };
+    $('#mDown', el).onclick = () => { moveBook(id, 1); render(); bookMenu(id); };
+    $$('[data-ph]', el).forEach(x => x.onclick = () => { moveToPhase(id, Number(x.dataset.ph)); closeSheet(); render(); toast(`Moved to Phase ${x.dataset.ph}`); });
+    $('#mSwap', el).onclick = () => { ui.swapFrom = id; closeSheet(); if(tab !== 'plan') tab = 'plan'; render(); };
+    const c = $('#mCur', el); if(c) c.onclick = () => { setCurrent(id); closeSheet(); render(); toast('Set as current book'); };
+    $('#mOpen', el).onclick = () => bookDetail(id);
+  });
+}
+
+/* ---------- LIBRARY ---------- */
+function viewLibrary(){
+  const cats = [...new Set(S.books.map(b => b.category).filter(Boolean))].sort();
+  const sel = (id, label, opts, val) => `<select class="inp" id="${id}" aria-label="${label}" style="margin:0;min-height:44px;padding:6px 10px;font-size:.92rem"><option value="">${label}: all</option>${opts.map(o => `<option value="${esc(o[0])}" ${String(val)===String(o[0])?'selected':''}>${esc(o[1])}</option>`).join('')}</select>`;
+  return `<div class="stack"><header class="row between"><div><div class="eyebrow">${S.books.length} books</div><h1>Library</h1></div>
+    <button class="btn primary sm" data-act="addBook">${ICON.plus.replace('<svg','<svg width="18" height="18"')} Add</button></header>
+    <input class="inp" id="lq" type="search" placeholder="Search title or author" value="${esc(ui.q)}" style="margin:0">
+    <div class="grid2">
+      ${sel('fStatus','Status', STATUSES.map(s => [s,s]), ui.fStatus)}
+      ${sel('fCat','Category', cats.map(c => [c,c]), ui.fCat)}
+      ${sel('fPhase','Phase', [[0,'Daily'],...PHASES.map(p => [p.n,'Phase '+p.n])], ui.fPhase)}
+      ${sel('fTrack','Track', TRACKS.map(t => [t,t]), ui.fTrack)}
+    </div>
+    <section class="card" style="padding:4px 16px"><ul class="list" id="libList"></ul></section></div>`;
+}
+function libRows(){
+  const q = ui.q.trim().toLowerCase();
+  const list = S.books.filter(b =>
+    (!q || (b.title + ' ' + b.author).toLowerCase().includes(q)) &&
+    (!ui.fStatus || b.status === ui.fStatus) && (!ui.fCat || b.category === ui.fCat) &&
+    (ui.fPhase === '' || String(b.phase) === String(ui.fPhase)) && (!ui.fTrack || b.track === ui.fTrack)
+  ).sort((a,b) => byPhaseOrder(a,b) || TRACKS.indexOf(a.track) - TRACKS.indexOf(b.track));
+  return list.length ? list.map(b => `<li data-act="book" data-id="${b.id}" style="cursor:pointer"><span class="dot ${b.status}"></span>
+    <div class="grow"><div class="serif" style="font-weight:600;line-height:1.25">${esc(b.title)}</div><div class="tiny muted">${esc(b.author)}</div>
+    <div class="row wrap" style="gap:6px;margin-top:4px"><span class="chip">${phaseLabel(b.phase)}</span><span class="chip">${b.track}</span><span class="chip ${b.status==='Reading'?'accent':b.status==='Read'?'good':''}">${b.status}</span>${b.category?`<span class="chip">${esc(b.category)}</span>`:''}</div></div></li>`).join('')
+    : '<li class="muted">No books match.</li>';
+}
+function bindLibrary(){
+  const upd = () => { $('#libList').innerHTML = libRows(); };
+  upd();
+  $('#lq').addEventListener('input', e => { ui.q = e.target.value; upd(); });
+  ['fStatus','fCat','fPhase','fTrack'].forEach(id => $('#'+id).addEventListener('change', e => { ui[id] = e.target.value; upd(); }));
+}
+function bookForm(b){
+  const o = (arr, v) => arr.map(x => `<option value="${esc(x[0])}" ${String(x[0])===String(v)?'selected':''}>${esc(x[1])}</option>`).join('');
+  const cats = [...new Set(S.books.map(x => x.category).filter(Boolean))].sort();
+  return `<label class="f">Title<input id="bTitle" value="${esc(b.title)}" required></label>
+    <label class="f">Author<input id="bAuthor" value="${esc(b.author)}"></label>
+    <div class="grid2"><label class="f">Category<input id="bCat" list="catList" value="${esc(b.category)}"></label>
+    <label class="f">Format<select id="bFormat">${o(Object.entries(FORMATS), b.format)}</select></label>
+    <label class="f">Phase<select id="bPhase">${o([[0,'Daily'],...PHASES.map(p => [p.n,'Phase '+p.n])], b.phase)}</select></label>
+    <label class="f">Track<select id="bTrack">${o(TRACKS.map(t => [t,t]), b.track)}</select></label></div>
+    <label class="f">Status<select id="bStatus">${o(STATUSES.map(s => [s,s]), b.status)}</select></label>
+    <div class="grid2"><label class="f">Started<input id="bStart" type="date" value="${b.start||''}"></label>
+    <label class="f">Finished<input id="bFinish" type="date" value="${b.finish||''}"></label></div>
+    <label class="f">Notes<textarea id="bNotes" placeholder="Quotes, thoughts, page numbers…">${esc(b.notes)}</textarea></label>
+    <datalist id="catList">${cats.map(c => `<option value="${esc(c)}">`).join('')}</datalist>`;
+}
+function readForm(el){
+  return { title: $('#bTitle', el).value.trim(), author: $('#bAuthor', el).value.trim(), category: $('#bCat', el).value.trim(),
+    format: $('#bFormat', el).value, phase: Number($('#bPhase', el).value), track: $('#bTrack', el).value, status: $('#bStatus', el).value,
+    start: $('#bStart', el).value, finish: $('#bFinish', el).value, notes: $('#bNotes', el).value };
+}
+function addBook(){
+  const blank = { title:'', author:'', category:'', format:'paper', phase: currentPhase(), track:'Deep', status:'To read', start:'', finish:'', notes:'' };
+  openSheet('Add a book', `<div class="stack">${bookForm(blank)}<button class="btn primary block" id="bSave">Add book</button></div>`, el => {
+    $('#bSave', el).onclick = () => {
+      const f = readForm(el); if(!f.title){ toast('Give it a title'); return; }
+      const b = { id: uid(), ideas:['','',''], action:'', ...f };
+      b.order = Math.max(0, ...groupOf(b).map(x => x.order)) + 1;
+      S.books.push(b); save(); closeSheet(); render(); toast('Book added');
+    };
+  });
+}
+function bookDetail(id){
+  const b = bookById(id); if(!b) return;
+  const t = bookTotals(id);
+  const sess = S.sessions.filter(s => s.bookId === id).sort((a,b) => b.date.localeCompare(a.date) || b.ts - a.ts);
+  const hasIdeas = b.ideas.some(Boolean) || b.action;
+  openSheet('Book', `<div class="stack">
+    <div class="bookcard"><div class="spine ${b.track}"></div><div class="grow"><div class="btitle" style="font-size:1.3rem">${esc(b.title)}</div><div class="muted">${esc(b.author)}</div></div></div>
+    <div class="grid3"><div class="card flat" style="padding:10px"><div class="stat" style="font-size:1.4rem">${t.minutes}</div><div class="statlbl">minutes${t.audio?` (${t.audio} audio)`:''}</div></div>
+    <div class="card flat" style="padding:10px"><div class="stat" style="font-size:1.4rem">${t.pages}</div><div class="statlbl">pages</div></div>
+    <div class="card flat" style="padding:10px"><div class="stat" style="font-size:1.4rem">${t.n}</div><div class="statlbl">sessions</div></div></div>
+    ${(b.track==='Deep'||b.track==='Practical') && (b.status==='To read'||b.status==='Reading') && S.current[b.track]!==b.id ? `<button class="btn block" id="dCur">Read this now (set as current)</button>` : ''}
+    ${b.status !== 'Read' ? `<button class="btn block" id="dFinish">Mark as read…</button>` : ''}
+    ${hasIdeas ? `<div><div class="eyebrow">Key ideas</div>${b.ideas.filter(Boolean).map(i => `<div class="idea">${esc(i)}</div>`).join('')}
+      ${b.action ? `<div class="eyebrow" style="margin-top:10px">My action</div><div class="idea" style="border-color:var(--good)">${esc(b.action)}</div>` : ''}
+      <button class="link" id="dIdeas">Edit key ideas</button></div>` : ''}
+    <div class="hr"></div>
+    ${bookForm(b)}
+    <button class="btn primary block" id="bSave">Save changes</button>
+    <details><summary>Sessions (${sess.length}) · log a past session</summary>
+      <div class="card flat" style="padding:12px;margin:6px 0 10px"><div class="grid3">
+        <label class="f">Date<input id="pDate" type="date" value="${todayKey()}" max="${todayKey()}"></label>
+        <label class="f">Min<input id="pMin" type="number" inputmode="numeric" min="0" placeholder="0"></label>
+        <label class="f">Pages<input id="pPages" type="number" inputmode="numeric" min="0" placeholder="0"></label></div>
+        <div class="seg" id="pKind" style="margin-top:10px"><button class="${b.format==='audio'?'':'on'}" data-k="paper">Paper</button><button class="${b.format==='audio'?'on':''}" data-k="audio">Audio</button></div>
+        <button class="btn block" id="pAdd" style="margin-top:10px">Add session</button></div>
+      <ul class="list">${sess.slice(0,30).map(s => `<li><div class="grow small"><b>${fmtDate(s.date)}</b> · ${s.minutes} min ${s.kind}${s.pages?` · ${s.pages} pages`:''}</div>
+        <button class="iconbtn" data-act="delSession" data-id="${s.id}" data-book="${id}" aria-label="Delete session">${ICON.x}</button></li>`).join('') || '<li class="muted small">No sessions yet.</li>'}</ul>
+    </details>
+    <button class="btn danger block" id="bDel">Delete book</button>
+  </div>`, el => {
+    $('#bSave', el).onclick = () => {
+      const f = readForm(el); if(!f.title){ toast('Title is required'); return; }
+      const becameRead = f.status === 'Read' && b.status !== 'Read';
+      const phaseChanged = f.phase !== b.phase || f.track !== b.track;
+      if(becameRead){ f.status = b.status; }
+      Object.assign(b, f);
+      if(phaseChanged) b.order = Math.max(0, ...groupOf(b).filter(x => x !== b).map(x => x.order)) + 1;
+      if(b.status === 'Reading' && !b.start) b.start = todayKey();
+      save(); render();
+      if(becameRead) finishForm(id); else { closeSheet(); toast('Saved'); }
+    };
+    const c = $('#dCur', el); if(c) c.onclick = () => { setCurrent(id); render(); bookDetail(id); toast('Set as current book'); };
+    const fi = $('#dFinish', el); if(fi) fi.onclick = () => finishForm(id);
+    const ie = $('#dIdeas', el); if(ie) ie.onclick = () => finishForm(id, true);
+    let kind = b.format === 'audio' ? 'audio' : 'paper';
+    $$('#pKind button', el).forEach(x => x.onclick = () => { kind = x.dataset.k; $$('#pKind button', el).forEach(y => y.classList.toggle('on', y === x)); });
+    $('#pAdd', el).onclick = () => {
+      const m = num($('#pMin', el).value), p = num($('#pPages', el).value);
+      if(m <= 0 && p <= 0){ toast('Enter minutes or pages'); return; }
+      addSession({ date: $('#pDate', el).value || todayKey(), bookId: id, kind, minutes: m, pages: p });
+      render(); bookDetail(id); toast('Session added');
+    };
+    $('#bDel', el).onclick = () => {
+      if(!confirm(`Delete "${b.title}"? Its sessions stay in your stats.`)) return;
+      S.books = S.books.filter(x => x.id !== id);
+      if(S.current.Deep === id) S.current.Deep = null; if(S.current.Practical === id) S.current.Practical = null;
+      save(); closeSheet(); render(); toast('Book deleted');
+    };
+  });
+}
+function finishForm(id, editOnly){
+  const b = bookById(id);
+  openSheet(editOnly ? 'Key ideas' : 'Finished! 🎉', `<div class="stack">
+    <p class="ink2"><span class="serif" style="font-weight:600">${esc(b.title)}</span>. Before it fades, write down what stays with you.</p>
+    ${[0,1,2].map(i => `<label class="f">Key idea ${i+1}<textarea id="fI${i}" style="min-height:64px">${esc(b.ideas[i]||'')}</textarea></label>`).join('')}
+    <label class="f">One action I'll take<textarea id="fA" style="min-height:64px">${esc(b.action||'')}</textarea></label>
+    ${editOnly ? '' : `<label class="f">Finished on<input id="fD" type="date" value="${b.finish || todayKey()}"></label>`}
+    <button class="btn primary block" id="fSave">${editOnly ? 'Save' : 'Mark as read'}</button></div>`, el => {
+    $('#fSave', el).onclick = () => {
+      b.ideas = [0,1,2].map(i => $('#fI'+i, el).value.trim()); b.action = $('#fA', el).value.trim();
+      if(editOnly){ save(); bookDetail(id); return; }
+      b.status = 'Read'; b.finish = $('#fD', el).value || todayKey(); if(!b.start) b.start = b.finish;
+      if(S.current[b.track] === id) S.current[b.track] = null;
+      save(); render();
+      const n = (b.track === 'Deep' || b.track === 'Practical') ? nextBook(b.track, id) : null;
+      openSheet('What\'s next?', `<div class="stack">
+        <div class="banner good"><div><b>${esc(b.title)}</b> is done. That's ${S.books.filter(x => x.status==='Read' && x.finish && x.finish.slice(0,4) === todayKey().slice(0,4)).length} book(s) this year.</div></div>
+        ${n ? `<p class="ink2">Next in your ${b.track.toLowerCase()} track:</p>
+        <div class="card flat bookcard"><div class="spine ${n.track}"></div><div><div class="btitle">${esc(n.title)}</div><div class="small muted">${esc(n.author)} · ${phaseLabel(n.phase)}</div></div></div>
+        <button class="btn primary block" id="nStart">Start it now</button>` : '<p class="ink2">No more books waiting in this track. Add one in the Library.</p>'}
+        <button class="btn block" data-act="closeSheet">Later</button></div>`, el2 => {
+        const s = $('#nStart', el2); if(s) s.onclick = () => { setCurrent(n.id); closeSheet(); render(); toast(`Now reading: ${n.title}`); };
+      });
+    };
+  });
+}
+
+/* ---------- STATS ---------- */
+function viewStats(){
+  const m = dayMap(), st = streaks(m), t = todayKey(), y = t.slice(0,4);
+  let mins = 0, pages = 0, amins = 0;
+  for(const s of S.sessions) if(s.date.slice(0,4) === y){ if(s.kind==='audio') amins += s.minutes; else mins += s.minutes; pages += s.pages || 0; }
+  const booksYear = S.books.filter(b => b.status === 'Read' && (b.finish||'').slice(0,4) === y).length;
+  const reviews = [...S.reviews].sort((a,b) => b.weekEnd.localeCompare(a.weekEnd));
+  return `<div class="stack"><header><div class="eyebrow">Your reading, honestly</div><h1>Stats</h1></header>
+    <div class="grid3">
+      <div class="card" style="padding:12px"><div class="stat">${st.cur}</div><div class="statlbl">current streak</div></div>
+      <div class="card" style="padding:12px"><div class="stat">${st.best}</div><div class="statlbl">longest streak</div></div>
+      <div class="card" style="padding:12px"><div class="stat">${st.total}</div><div class="statlbl">days read</div></div>
+    </div>
+    <section class="card"><h3>Reading days</h3><p class="small muted" style="margin-top:2px">Last 18 weeks. Darker means more minutes.</p>${heatmap(m)}
+      <div class="tip" id="tipHeat">${ui.tipHeat || 'Tap a day for details.'}</div>
+      <div class="legend" style="gap:4px;justify-content:flex-end"><span class="tiny muted" style="margin-right:4px">0</span>${[0,1,2,3,4].map(i => `<svg width="12" height="12"><rect width="12" height="12" rx="3" class="hm-${i}"/></svg>`).join('')}<span class="tiny muted" style="margin-left:4px">60+ min</span></div></section>
+    <section class="card"><h3>Minutes per week</h3>
+      <div class="legend" style="margin:6px 0 4px"><span><i style="background:var(--paper-c)"></i>Paper</span><span><i style="background:var(--audio-c)"></i>Audio</span></div>
+      ${weekChart()}<div class="tip" id="tipWeek">${ui.tipWeek || 'Tap a week for details.'}</div></section>
+    <section class="card"><h3>Books finished per month</h3>${monthChart()}<div class="tip" id="tipMonth">${ui.tipMonth || 'Tap a month for details.'}</div></section>
+    <section class="card"><h3>${y} so far</h3><div class="grid3" style="margin-top:10px">
+      <div><div class="stat">${booksYear}</div><div class="statlbl">books read</div></div>
+      <div><div class="stat">${(mins+amins).toLocaleString()}</div><div class="statlbl">minutes (${amins} audio)</div></div>
+      <div><div class="stat">${pages.toLocaleString()}</div><div class="statlbl">pages</div></div></div>
+      <p class="small muted" style="margin-bottom:0">${(Math.round((mins+amins)/6)/10).toLocaleString()} hours in total. Daily Laws ticked on ${plural(Object.keys(S.dailyLaws).filter(k => S.dailyLaws[k] && k.slice(0,4)===y).length, 'day')}.</p></section>
+    <section class="card"><div class="row between"><h3>Weekly reviews</h3><button class="btn sm" data-act="review">${S.reviews.some(r => r.weekEnd === weekRange().sun) ? 'Edit this week' : 'Do review'}</button></div>
+      ${reviews.length ? reviews.map(r => `<details style="border-top:1px solid var(--line);margin-top:8px"><summary><span class="grow">Week ending ${fmtDate(r.weekEnd)}</span><span class="small muted">${r.daysRead}/7 days${r.easy?' · easy':''}</span></summary>
+        <div class="small" style="padding-bottom:10px"><p><b>Days read:</b> ${r.daysRead}/7 · <b>Target:</b> ${r.target} min (level ${r.level+1})</p>
+        <p><b>Books finished:</b> ${r.booksFinished && r.booksFinished.length ? r.booksFinished.map(esc).join(', ') : 'none'}</p>
+        <p><b>What got in the way:</b> ${esc(r.obstacles) || '<span class="muted">-</span>'}</p>
+        <p><b>Target felt easy:</b> ${r.easy ? 'Yes' : 'No'}</p></div></details>`).join('') : '<p class="small muted">No reviews yet. They appear here after your first Sunday review.</p>'}
+    </section></div>`;
+}
+function heatmap(m){
+  const t = todayKey(), weeks = 18, start = addDays(mondayOf(t), -7*(weeks-1));
+  const cell = 15, gap = 3, left = 20, top = 16, W = left + weeks*(cell+gap), H = top + 7*(cell+gap);
+  let s = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Reading heatmap">`;
+  ['M','','W','','F','',''].forEach((l,i) => { if(l) s += `<text x="0" y="${top + i*(cell+gap) + 11}">${l}</text>`; });
+  let lastMonth = -1, lastLabelW = -9;
+  for(let w = 0; w < weeks; w++){
+    const wk = addDays(start, w*7), mo = parseKey(wk).getMonth();
+    if(mo !== lastMonth){ if(w - lastLabelW >= 3){ s += `<text x="${left + w*(cell+gap)}" y="10">${MONTHS[mo]}</text>`; lastLabelW = w; } lastMonth = mo; }
+    for(let d = 0; d < 7; d++){
+      const k = addDays(wk, d), x = left + w*(cell+gap), y = top + d*(cell+gap);
+      if(k > t){ s += `<rect x="${x}" y="${y}" width="${cell}" height="${cell}" rx="3" class="hm-f"/>`; continue; }
+      const v = m[k], mins = v ? v.paper + v.audio : 0;
+      const lvl = !v || (mins === 0 && !v.pages) ? 0 : mins < 10 && v.pages < 10 ? 1 : mins < 30 ? 2 : mins < 60 ? 3 : 4;
+      const tip = `${fmtLong(k)}: ${v ? `${mins} min${v.audio?` (${v.audio} audio)`:''}, ${v.pages} pages${qualifies(v)?' ✓':''}` : 'no reading'}`;
+      s += `<rect x="${x}" y="${y}" width="${cell}" height="${cell}" rx="3" class="hm-${lvl}${k===t?' hm-t':''}" data-act="tip" data-tip="${esc(tip)}" data-target="tipHeat" style="cursor:pointer"><title>${esc(tip)}</title></rect>`;
+    }
+  }
+  return s + '</svg>';
+}
+function niceMax(v){ if(v <= 0) return 60; const p = Math.pow(10, Math.floor(Math.log10(v))); for(const f of [1,2,2.5,5,10]) if(f*p >= v) return f*p; return 10*p; }
+function topRound(x, y, w, h, r){ r = Math.min(r, h, w/2); if(h <= 0) return ''; return `M${x},${y+h}V${y+r}Q${x},${y} ${x+r},${y}H${x+w-r}Q${x+w},${y} ${x+w},${y+r}V${y+h}Z`; }
+function weekChart(){
+  const n = 8, cur = mondayOf(todayKey()), data = [];
+  for(let i = n-1; i >= 0; i--){
+    const mon = addDays(cur, -7*i), sun = addDays(mon, 6); let p = 0, a = 0;
+    for(const s of S.sessions) if(s.date >= mon && s.date <= sun){ if(s.kind==='audio') a += s.minutes; else p += s.minutes; }
+    data.push({mon, p, a});
+  }
+  const W = 340, H = 170, L = 30, B = 22, T = 8, ih = H - B - T, max = 3 * niceMax(Math.max(...data.map(d => d.p + d.a)) / 3);
+  const slot = (W - L)/n, bw = Math.min(26, slot*0.55);
+  let s = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Minutes per week, paper and audio">`;
+  for(let i = 0; i <= 3; i++){ const v = max*i/3, y = T + ih - ih*i/3;
+    s += `<line x1="${L}" x2="${W}" y1="${y}" y2="${y}" stroke="var(--line)" stroke-width="1" ${i===0?'':'stroke-dasharray="2 3"'}/><text x="${L-6}" y="${y+3}" text-anchor="end">${Math.round(v)}</text>`; }
+  data.forEach((d, i) => {
+    const x = L + slot*i + (slot - bw)/2, hp = ih*d.p/max, ha = ih*d.a/max, base = T + ih;
+    const tip = `Week of ${fmtShort(d.mon)}: ${d.p} min paper, ${d.a} min audio (${d.p+d.a} total)`;
+    if(d.p) s += d.a ? `<rect x="${x}" y="${base-hp}" width="${bw}" height="${hp}" fill="var(--paper-c)"/>` : `<path d="${topRound(x, base-hp, bw, hp, 4)}" fill="var(--paper-c)"/>`;
+    if(d.a){ const ya = base - hp - (d.p ? 2 : 0) - ha; s += `<path d="${topRound(x, ya, bw, ha, 4)}" fill="var(--audio-c)"/>`; }
+    if((n - 1 - i) % 2 === 0) s += `<text x="${x + bw/2}" y="${H-6}" text-anchor="middle">${fmtShort(d.mon)}</text>`;
+    s += `<rect x="${L + slot*i}" y="${T}" width="${slot}" height="${ih}" fill="transparent" data-act="tip" data-tip="${esc(tip)}" data-target="tipWeek" style="cursor:pointer"><title>${esc(tip)}</title></rect>`;
+  });
+  return s + '</svg>';
+}
+function monthChart(){
+  const t = parseKey(todayKey()), data = [];
+  for(let i = 11; i >= 0; i--){
+    const d = new Date(t.getFullYear(), t.getMonth() - i, 1), key = `${d.getFullYear()}-${pad(d.getMonth()+1)}`;
+    const books = S.books.filter(b => b.status === 'Read' && (b.finish||'').slice(0,7) === key);
+    data.push({ label: MONTHS[d.getMonth()], year: d.getFullYear(), books });
+  }
+  const W = 340, H = 140, L = 22, B = 22, T = 8, ih = H - B - T, max = Math.max(3, ...data.map(d => d.books.length));
+  const slot = (W - L)/12, bw = Math.min(18, slot*0.6);
+  let s = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Books finished per month">`;
+  for(let i = 0; i <= max; i += Math.max(1, Math.ceil(max/3))){ const y = T + ih - ih*i/max;
+    s += `<line x1="${L}" x2="${W}" y1="${y}" y2="${y}" stroke="var(--line)" ${i===0?'':'stroke-dasharray="2 3"'}/><text x="${L-6}" y="${y+3}" text-anchor="end">${i}</text>`; }
+  data.forEach((d, i) => {
+    const x = L + slot*i + (slot-bw)/2, h = ih*d.books.length/max;
+    if(h) s += `<path d="${topRound(x, T+ih-h, bw, h, 4)}" fill="var(--accent)"/>`;
+    s += `<text x="${x+bw/2}" y="${H-6}" text-anchor="middle">${d.label.slice(0,1)}</text>`;
+    const tip = `${d.label} ${d.year}: ${d.books.length ? d.books.map(b => b.title).join(', ') : 'no books finished'}`;
+    s += `<rect x="${L+slot*i}" y="${T}" width="${slot}" height="${ih}" fill="transparent" data-act="tip" data-tip="${esc(tip)}" data-target="tipMonth" style="cursor:pointer"><title>${esc(tip)}</title></rect>`;
+  });
+  return s + '</svg>';
+}
+
+/* ---------- Weekly review ---------- */
+function review(){
+  const { mon, sun } = weekRange(), m = dayMap();
+  let days = 0; for(let i = 0; i < 7; i++) if(qualifies(m[addDays(mon, i)])) days++;
+  const fin = S.books.filter(b => b.status === 'Read' && b.finish >= mon && b.finish <= sun).map(b => b.title);
+  const ex = S.reviews.find(r => r.weekEnd === sun);
+  const tg = targets();
+  let easy = ex ? ex.easy : null;
+  openSheet('Weekly review', `<div class="stack">
+    <p class="small muted" style="margin-top:-8px">${fmtShort(mon)} – ${fmtDate(sun)}</p>
+    <div class="grid2"><div class="card flat" style="padding:12px"><div class="stat">${days}<span class="muted" style="font-size:1rem">/7</span></div><div class="statlbl">days read</div></div>
+    <div class="card flat" style="padding:12px"><div class="stat">${fin.length}</div><div class="statlbl">books finished</div></div></div>
+    ${fin.length ? `<p class="small ink2">Finished: ${fin.map(esc).join(', ')}</p>` : ''}
+    <label class="f">What got in the way?<textarea id="rObs" placeholder="YouTube in the morning, a late shift, a boring chapter…">${esc(ex ? ex.obstacles : '')}</textarea></label>
+    <div><div class="f" style="font-size:.85rem;font-weight:600;color:var(--ink2);margin-bottom:6px">Did the daily target (${tg.paper} min) feel easy?</div>
+    <div class="seg" id="rEasy"><button data-v="1" class="${easy===true?'on':''}">Yes, easy</button><button data-v="0" class="${easy===false?'on':''}">No / about right</button></div></div>
+    <button class="btn primary block" id="rSave">Save review</button></div>`, el => {
+    $$('#rEasy button', el).forEach(b => b.onclick = () => { easy = b.dataset.v === '1'; $$('#rEasy button', el).forEach(x => x.classList.toggle('on', x === b)); });
+    $('#rSave', el).onclick = () => {
+      if(easy === null){ toast('Answer the target question'); return; }
+      const r = { id: ex ? ex.id : uid(), weekEnd: sun, daysRead: days, booksFinished: fin, obstacles: $('#rObs', el).value.trim(), easy, level: tg.level, target: tg.paper, savedAt: new Date().toISOString() };
+      S.reviews = S.reviews.filter(x => x.weekEnd !== sun); S.reviews.push(r); save(); render();
+      const prev = S.reviews.find(x => x.weekEnd === addDays(sun, -7));
+      const L = levels();
+      if(easy && prev && prev.easy && tg.level < L.length - 1){
+        const nx = L[tg.level + 1];
+        openSheet('Ready for more?', `<div class="stack"><div class="banner good"><div><b>Two easy weeks in a row.</b> You could move up to level ${tg.level+2} early: ${nx.paper} min paper${nx.audio?` and ${nx.audio} min audio`:''} a day.</div></div>
+          <button class="btn primary block" id="lvUp">Yes, level up</button><button class="btn block" data-act="closeSheet">Stay at ${tg.paper} min for now</button></div>`, el2 => {
+          $('#lvUp', el2).onclick = () => { S.settings.manualLevel = tg.level + 1; save(); closeSheet(); render(); toast(`Level ${tg.level+2}: ${nx.paper} min a day`); };
+        });
+      } else { closeSheet(); toast('Review saved'); }
+    };
+  });
+}
+
+/* ---------- SETTINGS ---------- */
+let deferredInstall = null;
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredInstall = e; if(tab === 'settings') render(); });
+let persisted = null;
+async function requestPersist(){
+  try { if(navigator.storage && navigator.storage.persist){ persisted = await navigator.storage.persisted() || await navigator.storage.persist(); } } catch(e){}
+}
+function viewSettings(){
+  const L = levels(), cur = levelIndex(), s = S.settings;
+  const standalone = matchMedia('(display-mode: standalone)').matches;
+  return `<div class="stack"><header><div class="eyebrow">Preferences and backups</div><h1>Settings</h1></header>
+  <section class="card stack"><h3>You</h3>
+    <label class="f">Name for the greeting <span class="muted">(optional)</span><input id="stName" value="${esc(s.name)}" placeholder="Your name"></label>
+    <label class="f">Start date<input id="stStart" type="date" value="${s.startDate}"></label>
+    <p class="small muted" style="margin:0">Today is ${weekNum() ? 'week ' + weekNum() : 'before your start'}, level ${cur+1}: ${L[cur].paper} min paper${L[cur].audio ? `, ${L[cur].audio} min audio` : ', audio optional'}.</p>
+  </section>
+  <section class="card"><h3>Ramp-up targets</h3><p class="small muted">Daily minutes for each level. 0 audio means optional.</p>
+    <div style="display:grid;grid-template-columns:auto 1fr 1fr 1fr;gap:8px;align-items:end">
+      <span></span><span class="tiny muted">From week</span><span class="tiny muted">Paper min</span><span class="tiny muted">Audio min</span>
+      ${L.map((l,i) => `<b class="small" style="padding-bottom:14px;${i===cur?'color:var(--accent)':''}">L${i+1}</b>
+        <input class="inp lvl" data-i="${i}" data-k="fromWeek" type="number" inputmode="numeric" min="1" value="${l.fromWeek}" ${i===0?'disabled':''}>
+        <input class="inp lvl" data-i="${i}" data-k="paper" type="number" inputmode="numeric" min="0" value="${l.paper}">
+        <input class="inp lvl" data-i="${i}" data-k="audio" type="number" inputmode="numeric" min="0" value="${l.audio}">`).join('')}
+    </div>
+    ${s.manualLevel ? `<p class="small ink2">You moved up early to level ${s.manualLevel+1}. <button class="link" data-act="resetLevel">Go back to the schedule</button></p>` : ''}
+    <button class="link" data-act="defaultLevels">Restore default targets</button>
+  </section>
+  <section class="card stack"><h3>Backup</h3>
+    <p class="small ink2" style="margin:0">Everything lives only on this phone. ${s.lastExport ? 'Last export: ' + fmtDate(s.lastExport.slice(0,10)) + '.' : 'No export yet.'} Export once a week and keep the file somewhere safe, like Google Drive.</p>
+    <div class="grid2"><button class="btn primary" data-act="export">Export JSON</button><button class="btn" data-act="import">Import JSON</button></div>
+    ${navigator.canShare ? '<button class="btn block" data-act="shareExport">Share backup (Drive, email…)</button>' : ''}
+    <input type="file" id="importFile" accept="application/json,.json" hidden>
+  </section>
+  <section class="card stack"><h3>App</h3>
+    <p class="small ink2" style="margin:0">${standalone ? 'Running as an installed app.' : 'For the most reliable storage, install this as an app: Chrome menu ⋮ → <b>Add to Home screen</b> / <b>Install app</b>.'}
+    ${persisted === true ? ' Persistent storage is on.' : persisted === false ? ' Chrome hasn\'t granted persistent storage yet. Installing the app usually fixes that.' : ''}</p>
+    ${deferredInstall ? '<button class="btn primary block" data-act="install">Install app</button>' : ''}
+    ${!storageOK ? '<div class="banner warn"><div><b>Storage is unavailable here.</b> Data won\'t be kept. Open the installed app instead.</div></div>' : ''}
+  </section>
+  <section class="card stack"><h3>Reset</h3><p class="small ink2" style="margin:0">Deletes all sessions, reviews and edits, then restores the original book list.</p>
+    <button class="btn danger block" data-act="reset">Reset everything…</button></section>
+  <p class="tiny muted" style="text-align:center">Reading Habit v${APP_VERSION} · ${S.books.length} books · ${S.sessions.length} sessions</p></div>`;
+}
+function bindSettings(){
+  $('#stName').addEventListener('change', e => { S.settings.name = e.target.value.trim(); save(); toast('Saved'); });
+  $('#stStart').addEventListener('change', e => { if(e.target.value){ S.settings.startDate = e.target.value; save(); render(); toast('Start date updated'); } });
+  $$('.lvl').forEach(inp => inp.addEventListener('change', () => {
+    const L = levels(), i = Number(inp.dataset.i), k = inp.dataset.k;
+    let v = Math.max(0, num(inp.value, L[i][k]));
+    if(k === 'fromWeek'){ const lo = L[i-1] ? L[i-1].fromWeek + 1 : 1, hi = L[i+1] ? L[i+1].fromWeek - 1 : 999; v = clamp(v, lo, hi); }
+    L[i][k] = v; S.settings.levels = L; save(); render(); toast('Targets updated');
+  }));
+  $('#importFile').addEventListener('change', e => { const f = e.target.files[0]; if(f) importFile(f); e.target.value = ''; });
+}
+function backupBlob(){
+  const data = { app:'reading-habit', version: 1, exportedAt: new Date().toISOString(), data: S };
+  return new Blob([JSON.stringify(data, null, 1)], {type:'application/json'});
+}
+const backupName = () => `reading-habit-backup-${todayKey()}.json`;
+function markExported(){ S.settings.lastExport = new Date().toISOString(); save(); render(); }
+function doExport(){
+  const url = URL.createObjectURL(backupBlob()), a = document.createElement('a');
+  a.href = url; a.download = backupName(); document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
+  markExported(); toast('Backup saved to Downloads');
+}
+async function shareExport(){
+  try {
+    const file = new File([backupBlob()], backupName(), {type:'application/json'});
+    if(navigator.canShare && navigator.canShare({files:[file]})){ await navigator.share({files:[file], title:'Reading Habit backup'}); markExported(); toast('Backup shared'); }
+    else doExport();
+  } catch(e){ if(e.name !== 'AbortError') doExport(); }
+}
+function importFile(f){
+  const r = new FileReader();
+  r.onload = () => {
+    try {
+      const j = JSON.parse(r.result), d = j && j.data ? j.data : j;
+      if(!d || !Array.isArray(d.books) || !Array.isArray(d.sessions)) throw new Error('bad');
+      if(!confirm(`Restore this backup (${d.books.length} books, ${d.sessions.length} sessions${j.exportedAt ? ', exported ' + j.exportedAt.slice(0,10) : ''})? It replaces everything on this phone.`)) return;
+      S = normalize(d); S.settings.lastExport = S.settings.lastExport || new Date().toISOString(); save(); render(); toast('Backup restored');
+    } catch(e){ toast('That file isn\'t a valid backup'); }
+  };
+  r.readAsText(f);
+}
+function resetAll(){
+  openSheet('Reset everything?', `<div class="stack"><div class="banner warn"><div>This permanently deletes your sessions, reviews, notes and plan changes on this phone. <b>Export a backup first</b> if you might want them back.</div></div>
+    <button class="btn block" data-act="export">Export backup first</button>
+    <label class="f">Type RESET to confirm<input id="rsTxt" autocomplete="off" autocapitalize="characters"></label>
+    <button class="btn danger block" id="rsGo">Delete all and reset</button></div>`, el => {
+    $('#rsGo', el).onclick = () => {
+      if($('#rsTxt', el).value.trim().toUpperCase() !== 'RESET'){ toast('Type RESET to confirm'); return; }
+      S = defaultState(); save(); closeSheet(); go('today'); toast('Everything reset');
+    };
+  });
+}
+
+/* ---------- Central click handling ---------- */
+const ACT = {
+  tab: el => go(el.dataset.id),
+  closeSheet: () => closeSheet(),
+  startTimer, openTimer, logAudio, bored, review,
+  minTimer: () => { if(topLayer() === 'timer') popLayers(1); },
+  pauseTimer, stopTimer,
+  timerBook: () => {},
+  dailyLaws: el => { const t = todayKey(); if(el.checked) S.dailyLaws[t] = true; else delete S.dailyLaws[t]; save(); if(el.checked){ try{navigator.vibrate&&navigator.vibrate(20);}catch(e){} toast('Daily Law read. Good start.'); } },
+  book: el => bookDetail(el.dataset.id),
+  bookMenu: el => bookMenu(el.dataset.id),
+  setCurrent: el => { setCurrent(el.dataset.id); render(); toast('Set as current book'); },
+  pickCurrent: el => pickCurrent(el.dataset.id),
+  chooseCurrent: el => { setCurrent(el.dataset.id); closeSheet(); render(); toast('Current book updated'); },
+  doSwap: el => { const a = ui.swapFrom; ui.swapFrom = null; swapBooks(a, el.dataset.id); render(); toast('Books swapped'); },
+  cancelSwap: () => { ui.swapFrom = null; render(); },
+  addBook,
+  delSession: el => { if(!confirm('Delete this session?')) return; S.sessions = S.sessions.filter(s => s.id !== el.dataset.id); save(); render(); bookDetail(el.dataset.book); },
+  tip: el => { ui[el.dataset.target] = el.dataset.tip; const t = $('#' + el.dataset.target); if(t) t.textContent = el.dataset.tip; },
+  export: doExport, shareExport,
+  import: () => $('#importFile') ? $('#importFile').click() : (go('settings'), setTimeout(() => $('#importFile').click(), 50)),
+  install: async () => { if(!deferredInstall) return; deferredInstall.prompt(); await deferredInstall.userChoice; deferredInstall = null; render(); },
+  reset: resetAll,
+  resetLevel: () => { S.settings.manualLevel = 0; save(); render(); toast('Back on the schedule'); },
+  defaultLevels: () => { if(confirm('Restore the default ramp-up targets?')){ S.settings.levels = DEFAULT_LEVELS.map(l => ({...l})); save(); render(); } },
+};
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]'); if(!el) return;
+  const fn = ACT[el.dataset.act]; if(!fn) return;
+  if(el.dataset.act !== 'dailyLaws') e.preventDefault();
+  e.stopPropagation(); fn(el);
+});
+
+/* ---------- Boot ---------- */
+load();
+render();
+if(S.timer) updateMini();
+if(new URLSearchParams(location.search).get('start') === '1') startTimer();
+document.addEventListener('visibilitychange', () => { if(!document.hidden){ if(S.timer) tickTimer(); if(!S.timer || !$('#timer').classList.contains('show')) render(); } });
+// Re-render around midnight so "today" stays correct
+(function midnight(){ const n = new Date(), next = new Date(n.getFullYear(), n.getMonth(), n.getDate()+1, 0, 0, 5); setTimeout(() => { render(); midnight(); }, next - n); })();
+if('serviceWorker' in navigator && /^https?:$/.test(location.protocol)){
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+requestPersist().then(() => { if(tab === 'settings') render(); });
+</script>
+</body>
+</html>
