@@ -173,6 +173,8 @@ svg.chart text{font-family:var(--sans);font-size:10px;fill:var(--muted)}
 .swapbar{position:sticky;top:0;z-index:5;margin:-16px -16px 12px;padding:12px 16px;background:var(--accent);color:var(--on-accent);display:flex;align-items:center;justify-content:space-between;gap:10px;font-weight:600}
 .swapbar button{background:var(--on-accent);color:var(--accent);border:none;border-radius:10px;min-height:40px;padding:0 14px;font-weight:700}
 li.swappable{background:var(--accent-soft);border-radius:10px;padding-left:8px;cursor:pointer}
+.catb{display:inline-grid;place-items:center;flex:none;border-radius:12px;background:var(--accent-soft);color:var(--accent)}
+.bnum{flex:none;min-width:26px;text-align:right;font-family:var(--serif);font-weight:600;color:var(--muted);font-variant-numeric:tabular-nums}
 .idea{padding:10px 12px;border-left:3px solid var(--accent);background:var(--surface2);border-radius:0 10px 10px 0;margin:6px 0}
 details>summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-weight:600;list-style:none}
 details>summary::-webkit-details-marker{display:none}
@@ -200,7 +202,7 @@ details>summary::-webkit-details-marker{display:none}
    Reading Habit — single-file offline app. Data: localStorage.
    ========================================================== */
 const KEY = 'readingHabit.v1';
-const APP_VERSION = '1.0.0';
+const APP_VERSION = '1.1.0';
 
 /* ---------- Seed data ---------- */
 const SEED = `The Daily Laws | Robert Greene | Strategy | Daily | Warm-up | Reading
@@ -500,6 +502,28 @@ const ICON = {
   cal: sv('<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>'),
 };
 
+/* ---------- Category icons & book numbers ---------- */
+const CAT_ICON = {
+  literature: '<path d="M20.2 3.8a6 6 0 0 0-8.5 0L5 10.5V19h8.5l6.7-6.7a6 6 0 0 0 0-8.5z"/><path d="M16 8L2 22M17.5 15H9"/>',
+  philosophy: '<path d="M3 10h18L12 4z"/><path d="M5 10v9M9.5 10v9M14.5 10v9M19 10v9M3 21h18"/>',
+  strategy: '<path d="M5 21h14M7 21l1-9h8l1 9M7 12V4h2.5v3h1.75V4h1.5v3h1.75V4H17v8"/>',
+  self: '<path d="M12 21v-9"/><path d="M12 12C12 8 9 5 4 5c0 4 3 7 8 7z"/><path d="M12 14c0-4 3-7 8-7 0 4-3 7-8 7z"/>',
+  money: '<circle cx="8" cy="8" r="6"/><path d="M18.1 10.4A6 6 0 1 1 10.3 18"/><path d="M7 6h1v4"/>',
+  stoicism: '<path d="M2 20l7-12 4 6 2-3 7 9z"/><path d="M7.5 10.5l1.5 1.5 1.5-1.5"/>',
+  people: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14.5a6.5 6.5 0 0 1 3.5 5.5"/>',
+  career: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"/>',
+  leadership: '<path d="M5 21V4"/><path d="M5 4h13l-2.5 4.5L18 13H5"/>',
+  business: '<path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/>',
+  mind: '<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/>',
+  spirituality: '<path d="M12 20c-4.5 0-8.5-2-9.5-6.5 3.5 0 7 1.5 9.5 4.5 2.5-3 6-4.5 9.5-4.5-1 4.5-5 6.5-9.5 6.5z"/><path d="M12 18c-2-2-3-5-3-8.5 1.2.3 2.4 1.2 3 2.5.6-1.3 1.8-2.2 3-2.5 0 3.5-1 6.5-3 8.5z"/>',
+};
+const catIcon = (cat, size=20) => `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${CAT_ICON[String(cat||'').trim().toLowerCase()] || '<path d="M2 5c3-1.5 6.5-1.5 10 1 3.5-2.5 7-2.5 10-1v14c-3-1.5-6.5-1.5-10 1-3.5-2.5-7-2.5-10-1z"/><path d="M12 6v14"/>'}</svg>`;
+const catBadge = (cat, size=40) => `<span class="catb" style="width:${size}px;height:${size}px" title="${esc(cat||'Book')}">${catIcon(cat, Math.round(size*0.55))}</span>`;
+const TRACK_ORDER = {'Warm-up':0, 'Deep':1, 'Practical':2};
+const planSort = (a,b) => (a.phase - b.phase) || ((TRACK_ORDER[a.track] ?? 3) - (TRACK_ORDER[b.track] ?? 3)) || (a.order - b.order) || a.title.localeCompare(b.title);
+// Book numbers follow the reading plan: phase, then deep before practical, then plan order.
+function bookNumbers(){ const m = {}; [...S.books].sort(planSort).forEach((b,i) => m[b.id] = i + 1); return m; }
+
 /* ---------- Tabs & routing ---------- */
 const TABS = [['today','Today'],['plan','Plan'],['library','Library'],['stats','Stats'],['settings','Settings']];
 let tab = 'today';
@@ -578,13 +602,15 @@ function viewToday(){
   // daily laws
   h += `<section class="card" style="padding:4px 16px">
     <label class="check"><input type="checkbox" id="dlCheck" data-act="dailyLaws" ${S.dailyLaws[t] ? 'checked' : ''}><span class="box"></span>
-    <span class="grow"><span class="btitle">The Daily Laws</span><br><span class="small muted">Warm-up: today's entry is ${dlDate.getDate()} ${MONTHS_LONG[dlDate.getMonth()]}</span></span></label>
+    <span class="grow"><span class="btitle">The Daily Laws</span><br><span class="small muted">Warm-up: today's entry is ${dlDate.getDate()} ${MONTHS_LONG[dlDate.getMonth()]}${dl && bookTotals(dl.id).minutes ? ` · ${dayDL(t)} min today` : ''}</span></span>
+    ${dl ? `<button type="button" class="btn sm" data-act="startTimer" data-id="${dl.id}" aria-label="Time the Daily Laws">${ICON.play.replace('<svg','<svg width="14" height="14"')} Timer</button>` : ''}</label>
   </section>`;
 
   h += bookCardToday('Deep', deep) + bookCardToday('Practical', prac);
   h += `<p class="small muted" style="text-align:center">A day counts towards the streak at 10 minutes or 10 pages. Longest streak: ${plural(st.best,'day')}.</p></div>`;
   return h;
 }
+function dayDL(k){ const dl = S.books.find(b => b.track === 'Warm-up'); return dl ? S.sessions.filter(s => s.bookId === dl.id && s.date === k).reduce((a,s) => a + s.minutes, 0) : 0; }
 function bookCardToday(track, b){
   const label = track === 'Deep' ? 'Deep · paper' : 'Practical · often audio';
   if(!b){
@@ -599,16 +625,17 @@ function bookCardToday(track, b){
     <div class="spine ${track}"></div>
     <div class="grow">
       <div class="row between"><div class="eyebrow">${label}</div><button class="link" style="padding:0 4px;min-height:32px" data-act="pickCurrent" data-id="${track}">Change</button></div>
-      <div class="btitle">${esc(b.title)}</div>
-      <div class="small muted">${esc(b.author)} · ${phaseLabel(b.phase)}</div>
-      <div class="small ink2" style="margin-top:6px">${t.minutes} min · ${t.pages} pages${b.start ? ' · since ' + fmtShort(b.start) : ''}</div>
+      <div class="row" style="gap:12px;margin-top:4px">${catBadge(b.category, 36)}<div class="grow"><div class="btitle">${esc(b.title)}</div>
+      <div class="small muted">${esc(b.author)} · ${esc(b.category)}</div></div></div>
+      <div class="row between" style="margin-top:6px"><span class="small ink2">${t.minutes} min · ${t.pages} pages${b.start ? ' · since ' + fmtShort(b.start) : ''}</span>
+      ${track === 'Practical' ? `<button type="button" class="btn sm" data-act="startTimer" data-id="${b.id}">${ICON.play.replace('<svg','<svg width="14" height="14"')} Timer</button>` : ''}</div>
     </div></section>`;
 }
 function pickCurrent(track){
   const list = S.books.filter(b => b.track === track && (b.status === 'To read' || b.status === 'Reading')).sort(byPhaseOrder);
   const cur = currentBook(track);
   openSheet(`Choose ${track.toLowerCase()} book`, `<ul class="list">${list.map(b => `<li class="tap" data-act="chooseCurrent" data-id="${b.id}" style="cursor:pointer">
-    <span class="dot ${b.status}"></span><div class="grow"><div class="btitle">${esc(b.title)}</div><div class="small muted">${esc(b.author)} · ${phaseLabel(b.phase)} · ${b.status}</div></div>
+    ${catBadge(b.category, 36)}<div class="grow"><div class="btitle">${esc(b.title)}</div><div class="small muted">${esc(b.author)} · ${phaseLabel(b.phase)} · ${b.status}</div></div>
     ${cur && cur.id === b.id ? '<span class="chip accent">Current</span>' : ''}</li>`).join('') || '<li class="muted">No books available in this track.</li>'}</ul>`);
 }
 
@@ -616,11 +643,11 @@ function pickCurrent(track){
 let timerInt = null;
 const timerElapsed = () => S.timer ? S.timer.acc + (S.timer.startedAt ? Date.now() - S.timer.startedAt : 0) : 0;
 const fmtClock = ms => { const s = Math.floor(ms/1000), h = Math.floor(s/3600), m = Math.floor(s/60)%60, x = s%60; return h ? `${h}:${pad(m)}:${pad(x)}` : `${m}:${pad(x)}`; };
-function startTimer(){
+function startTimer(bookId){
   if(!S.timer){
     const d = dayMap()[todayKey()] || {paper:0}, tg = targets();
     const deep = currentBook('Deep');
-    S.timer = { startedAt: Date.now(), acc: 0, bookId: deep ? deep.id : null, date: todayKey(), base: d.paper, vibrated: d.paper >= tg.paper };
+    S.timer = { startedAt: Date.now(), acc: 0, bookId: bookId || (deep ? deep.id : null), date: todayKey(), base: d.paper, vibrated: d.paper >= tg.paper };
     save();
     try { navigator.vibrate && navigator.vibrate(30); } catch(e){}
     requestPersist();
@@ -642,7 +669,7 @@ function drawTimer(){
     <div style="text-align:center;width:100%">
       <div class="row between" style="width:100%"><button class="iconbtn" data-act="minTimer" aria-label="Minimise">${ICON.down}</button>
       <div class="eyebrow">Reading</div><button class="btn sm ghost" data-act="bored">Bored?</button></div>
-      <div class="btitle" style="margin-top:10px" data-act="timerBook">${b ? esc(b.title) : 'You\'ll pick the book when you stop'}</div>
+      <button type="button" class="btn ghost" style="margin-top:6px;max-width:100%;font-family:var(--serif);font-size:1.05rem" data-act="timerBook">${b ? catIcon(b.category, 18) + ' ' + esc(b.title) : 'Choose a book'} <span class="muted small" style="font-family:var(--sans)">▾</span></button>
       <div class="small muted">Phone face down. The timer keeps running.</div>
     </div>
     <div class="ring">
@@ -708,7 +735,9 @@ function stopTimer(){
     $('#sSave', el).onclick = () => {
       const minutes = num($('#sMin', el).value), pages = num($('#sPages', el).value);
       if(minutes <= 0 && pages <= 0){ toast('Enter minutes or pages'); return; }
-      addSession({ date: T.date || todayKey(), bookId: $('#sBook', el).value, kind:'paper', minutes, pages });
+      const logBook = bookById($('#sBook', el).value);
+      addSession({ date: T.date || todayKey(), bookId: logBook ? logBook.id : '', kind:'paper', minutes, pages });
+      if(logBook && logBook.track === 'Warm-up'){ S.dailyLaws[T.date || todayKey()] = true; save(); }
       S.timer = null; save(); popLayers(layers.length);
       const d = dayMap()[todayKey()], tg = targets();
       toast(d && d.paper >= tg.paper ? 'Target met. Reward unlocked.' : `Logged ${minutes} min.`);
@@ -761,7 +790,7 @@ function bored(){
 
 /* ---------- PLAN ---------- */
 function viewPlan(){
-  const cp = currentPhase(), nd = nextBook('Deep'), np = nextBook('Practical');
+  const cp = currentPhase(), nd = nextBook('Deep'), np = nextBook('Practical'), num = bookNumbers();
   let h = '';
   if(ui.swapFrom){ const b = bookById(ui.swapFrom); h += `<div class="swapbar"><span>Tap a book to swap with "${esc(b ? b.title : '')}"</span><button data-act="cancelSwap">Cancel</button></div>`; }
   h += `<div class="stack"><header><div class="eyebrow">Your 21-month plan</div><h1>Plan</h1></header>
@@ -770,7 +799,7 @@ function viewPlan(){
     <div class="row" style="margin-top:10px"><span class="spine Practical" style="height:36px;width:6px"></span><div class="grow"><div class="small muted">Practical</div><div class="btitle">${np ? esc(np.title) : '-'}</div></div></div>
   </section>`;
   const warm = S.books.filter(b => b.phase === 0).sort(byPhaseOrder);
-  if(warm.length) h += `<section class="card"><div class="phasehead"><h3>Daily warm-up</h3><span class="small muted">every morning</span></div><ul class="list">${warm.map(b => planRow(b)).join('')}</ul></section>`;
+  if(warm.length) h += `<section class="card"><div class="phasehead"><h3>Daily warm-up</h3><span class="small muted">every morning</span></div><ul class="list">${warm.map(b => planRow(b, null, num)).join('')}</ul></section>`;
   for(const p of PHASES){
     const books = S.books.filter(b => b.phase === p.n);
     const counted = books.filter(b => b.status !== 'Dropped' && b.status !== 'Reference');
@@ -782,21 +811,22 @@ function viewPlan(){
       ${p.n===cp ? `<div class="small muted">${p.months}</div>` : ''}
       <p class="ink2 small serif" style="font-size:.95rem">${p.focus}</p>
       <div class="row small" style="gap:10px;margin:8px 0 4px"><div class="bar good grow"><i style="width:${pct}%"></i></div><span class="muted">${read}/${counted.length} read</span></div>
-      <div class="eyebrow" style="margin-top:12px">Deep</div><ul class="list">${deep.map(b => planRow(b, nd)).join('') || '<li class="muted small">No books</li>'}</ul>
-      <div class="eyebrow" style="margin-top:8px">Practical</div><ul class="list">${prac.map(b => planRow(b, np)).join('') || '<li class="muted small">No books</li>'}</ul>
+      <div class="eyebrow" style="margin-top:12px">Deep</div><ul class="list">${deep.map(b => planRow(b, nd, num)).join('') || '<li class="muted small">No books</li>'}</ul>
+      <div class="eyebrow" style="margin-top:8px">Practical</div><ul class="list">${prac.map(b => planRow(b, np, num)).join('') || '<li class="muted small">No books</li>'}</ul>
     </section>`;
   }
   return h + '</div>';
 }
-function planRow(b, next){
+function planRow(b, next, num){
+  num = num || bookNumbers();
   const isNext = next && next.id === b.id;
   const isCur = S.current[b.track] === b.id || (currentBook(b.track) || {}).id === b.id;
   const swap = ui.swapFrom && ui.swapFrom !== b.id;
   return `<li class="${swap?'swappable':''}" ${swap ? `data-act="doSwap" data-id="${b.id}"` : ''}>
-    <span class="dot ${b.status}" title="${b.status}"></span>
+    <span class="bnum tiny" style="min-width:20px">${num[b.id]}</span>${catBadge(b.category, 32)}
     <div class="grow" ${swap ? '' : `data-act="book" data-id="${b.id}" style="cursor:pointer"`}>
       <div class="serif" style="font-weight:600;line-height:1.25;${b.status==='Dropped'?'text-decoration:line-through;opacity:.6':''}">${esc(b.title)}</div>
-      <div class="tiny muted">${esc(b.author)}${isCur && b.status==='Reading' ? ' · <span style="color:var(--accent);font-weight:600">reading now</span>' : ''}${isNext ? ' · <span style="color:var(--accent);font-weight:600">next up</span>' : ''}${b.status==='Read' ? ' · read' : ''}</div>
+      <div class="tiny muted">${esc(b.author)}${isCur && b.status==='Reading' ? ' · <span style="color:var(--accent);font-weight:600">reading now</span>' : ''}${isNext ? ' · <span style="color:var(--accent);font-weight:600">next up</span>' : ''}${b.status==='Read' ? ' · <span style="color:var(--good);font-weight:600">✓ read</span>' : b.status==='Dropped' ? ' · dropped' : ''}</div>
     </div>
     ${swap ? '' : `<button class="iconbtn" data-act="bookMenu" data-id="${b.id}" aria-label="Options for ${esc(b.title)}">${ICON.more}</button>`}
   </li>`;
@@ -860,8 +890,9 @@ function libRows(){
     (!q || (b.title + ' ' + b.author).toLowerCase().includes(q)) &&
     (!ui.fStatus || b.status === ui.fStatus) && (!ui.fCat || b.category === ui.fCat) &&
     (ui.fPhase === '' || String(b.phase) === String(ui.fPhase)) && (!ui.fTrack || b.track === ui.fTrack)
-  ).sort((a,b) => byPhaseOrder(a,b) || TRACKS.indexOf(a.track) - TRACKS.indexOf(b.track));
-  return list.length ? list.map(b => `<li data-act="book" data-id="${b.id}" style="cursor:pointer"><span class="dot ${b.status}"></span>
+  ).sort(planSort);
+  const num = bookNumbers();
+  return list.length ? list.map(b => `<li data-act="book" data-id="${b.id}" style="cursor:pointer"><span class="bnum">${num[b.id]}</span>${catBadge(b.category)}
     <div class="grow"><div class="serif" style="font-weight:600;line-height:1.25">${esc(b.title)}</div><div class="tiny muted">${esc(b.author)}</div>
     <div class="row wrap" style="gap:6px;margin-top:4px"><span class="chip">${phaseLabel(b.phase)}</span><span class="chip">${b.track}</span><span class="chip ${b.status==='Reading'?'accent':b.status==='Read'?'good':''}">${b.status}</span>${b.category?`<span class="chip">${esc(b.category)}</span>`:''}</div></div></li>`).join('')
     : '<li class="muted">No books match.</li>';
@@ -909,7 +940,7 @@ function bookDetail(id){
   const sess = S.sessions.filter(s => s.bookId === id).sort((a,b) => b.date.localeCompare(a.date) || b.ts - a.ts);
   const hasIdeas = b.ideas.some(Boolean) || b.action;
   openSheet('Book', `<div class="stack">
-    <div class="bookcard"><div class="spine ${b.track}"></div><div class="grow"><div class="btitle" style="font-size:1.3rem">${esc(b.title)}</div><div class="muted">${esc(b.author)}</div></div></div>
+    <div class="row" style="gap:14px">${catBadge(b.category, 52)}<div class="grow"><div class="tiny muted">#${bookNumbers()[b.id]} · ${esc(b.category||'Book')} · ${phaseLabel(b.phase)} · ${b.track}</div><div class="btitle" style="font-size:1.3rem">${esc(b.title)}</div><div class="muted">${esc(b.author)}</div></div></div>
     <div class="grid3"><div class="card flat" style="padding:10px"><div class="stat" style="font-size:1.4rem">${t.minutes}</div><div class="statlbl">minutes${t.audio?` (${t.audio} audio)`:''}</div></div>
     <div class="card flat" style="padding:10px"><div class="stat" style="font-size:1.4rem">${t.pages}</div><div class="statlbl">pages</div></div>
     <div class="card flat" style="padding:10px"><div class="stat" style="font-size:1.4rem">${t.n}</div><div class="statlbl">sessions</div></div></div>
@@ -1225,10 +1256,17 @@ function resetAll(){
 const ACT = {
   tab: el => go(el.dataset.id),
   closeSheet: () => closeSheet(),
-  startTimer, openTimer, logAudio, bored, review,
+  startTimer: el => startTimer(el && el.dataset.id), openTimer, logAudio, bored, review,
   minTimer: () => { if(topLayer() === 'timer') popLayers(1); },
   pauseTimer, stopTimer,
-  timerBook: () => {},
+  timerBook: () => {
+    const opts = [currentBook('Deep'), currentBook('Practical'), S.books.find(b => b.track === 'Warm-up'), ...S.books.filter(b => b.status === 'Reading')]
+      .filter((b,i,a) => b && a.findIndex(x => x && x.id === b.id) === i);
+    openSheet('What are you reading?', `<ul class="list">${opts.map(b => `<li data-act="setTimerBook" data-id="${b.id}" style="cursor:pointer">${catBadge(b.category, 36)}
+      <div class="grow"><div class="btitle">${esc(b.title)}</div><div class="small muted">${b.track}</div></div>${S.timer && S.timer.bookId === b.id ? '<span class="chip accent">Now</span>' : ''}</li>`).join('')}</ul>
+      <p class="small muted">The whole session is logged to the book you pick. To split time between books, stop and start a new session.</p>`);
+  },
+  setTimerBook: el => { if(S.timer){ S.timer.bookId = el.dataset.id; save(); } closeSheet(); drawTimer(); },
   dailyLaws: el => { const t = todayKey(); if(el.checked) S.dailyLaws[t] = true; else delete S.dailyLaws[t]; save(); if(el.checked){ try{navigator.vibrate&&navigator.vibrate(20);}catch(e){} toast('Daily Law read. Good start.'); } },
   book: el => bookDetail(el.dataset.id),
   bookMenu: el => bookMenu(el.dataset.id),
