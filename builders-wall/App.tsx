@@ -9,7 +9,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { DarkTheme, NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StoreProvider, useStore } from './src/state/store';
 import { configureForegroundHandler, requestPermission } from './src/notifications/scheduler';
 import { CelebrationLayer } from './src/ui/feedback';
@@ -71,6 +71,8 @@ function SettingsButton() {
 }
 
 function Tabs() {
+  // Leave room for Android's own navigation buttons (◀ ● ■) under the tab bar.
+  const insets = useSafeAreaInsets();
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -80,7 +82,13 @@ function Tabs() {
         headerRight: () => <SettingsButton />,
         tabBarActiveTintColor: colors.amber,
         tabBarInactiveTintColor: colors.faint,
-        tabBarStyle: { backgroundColor: colors.surface, borderTopColor: colors.line, height: 64, paddingTop: 6 },
+        tabBarStyle: {
+          backgroundColor: colors.surface,
+          borderTopColor: colors.line,
+          height: 64 + insets.bottom,
+          paddingTop: 6,
+          paddingBottom: insets.bottom + 6,
+        },
         tabBarLabelStyle: { fontFamily: fonts.displaySemi, fontSize: 13, letterSpacing: 0.8 },
       })}
     >
