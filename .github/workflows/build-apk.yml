@@ -1,0 +1,122 @@
+# Builds the Builder's Wall Android app and publishes the APK.
+#
+# - Every push builds and tests the app.
+# - Pushes to `main` also create a GitHub Release with the signed APK attached
+#   (Releases page → newest release → builders-wall-vX.Y.Z.apk).
+# - The release is signed with your own keystore from these repository secrets:
+#     ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD,
+#     ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD
+#   Branch builds without the secrets use a throwaway debug key (test only).
+name: Build Android APK
+
+on:
+  push: # every push (main → release; other branches → test build only)
+  workflow_dispatch: # also lets you run it by hand: Actions tab → Build Android APK → Run workflow
+
+permissions:
+  contents: write # needed to create releases
+
+concurrency:
+  group: apk-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    defaults:
+      run:
+        working-directory: builders-wall
+    env:
+      BW_VERSION_CODE: ${{ github.run_number }}
+      BW_VERSION_NAME: 1.0.${{ github.run_number }}
+      IS_MAIN: ${{ github.ref == 'refs/heads/main' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: builders-wall/package-lock.json
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Generate the Android project (expo prebuild)
+        run: npx expo prebuild --platform android --no-install --clean
+        env:
+          CI: 1
+
+      - name: Load signing keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            if [ "$IS_MAIN" = "true" ]; then
+              echo "::error::The ANDROID_KEYSTORE_BASE64 secret is missing. Add the four signing secrets (see builders-wall/README.md) and re-run."
+              exit 1
+            fi
+            echo "::warning::No keystore secret: this test build is signed with a debug key and can't update a release install."
+            exit 0
+          fi
+          echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.keystore"
+          echo "BW_KEYSTORE_PATH=$RUNNER_TEMP/release.keystore" >> "$GITHUB_ENV"
+
+      - name: Build release APK (Gradle)
+        working-directory: builders-wall/android
+        env:
+          BW_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          BW_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          BW_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          NODE_ENV: production
+        run: ./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a,armeabi-v7a --no-daemon
+
+      - name: Check signature and rename
+        id: apk
+        run: |
+          APK=android/app/build/outputs/apk/release/app-release.apk
+          BT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
+          "$BT/apksigner" verify --print-certs "$APK" | tee signer.txt
+          if [ -n "${BW_KEYSTORE_PATH:-}" ] && grep -qi "Android Debug" signer.txt; then
+            echo "::error::APK is signed with the debug key instead of your release key."
+            exit 1
+          fi
+          NAME="builders-wall-v${BW_VERSION_NAME}.apk"
+          mv "$APK" "$NAME"
+          echo "name=$NAME" >> "$GITHUB_OUTPUT"
+          ls -lh "$NAME"
+
+      - name: Keep APK as a build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.apk.outputs.name }}
+          path: builders-wall/${{ steps.apk.outputs.name }}
+          retention-days: 14
+
+      - name: Publish GitHub Release
+        if: github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ env.BW_VERSION_NAME }}
+          name: Builder's Wall ${{ env.BW_VERSION_NAME }}
+          make_latest: true
+          files: builders-wall/${{ steps.apk.outputs.name }}
+          body: |
+            **Install on your phone:** tap `${{ steps.apk.outputs.name }}` below to download it, then open it and tap **Install** (or **Update**).
+            Your habits and history stay on the phone; installing a newer APK over the old one keeps them.
+
+            Built from ${{ github.sha }}.
