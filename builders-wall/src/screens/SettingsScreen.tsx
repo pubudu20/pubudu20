@@ -5,6 +5,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Alert, Pressable, ScrollView, Switch, View, type ScrollViewInstance } from 'react-native';
 import { useRoute } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Constants from 'expo-constants';
 import { requestPinWidget } from 'react-native-android-widget';
 import { addDays, diffDays, prettyDate, prettyDay, WEEKDAY_SHORT, type DayKey } from '../core/dates';
@@ -35,6 +36,7 @@ import { colors, space } from '../ui/theme';
 
 export function SettingsScreen() {
   const { data, game, mutate } = useStore();
+  const insets = useSafeAreaInsets();
   const scrollRef = useRef<ScrollViewInstance>(null);
   const backupY = useRef(0);
   const focus = (useRoute().params as { focus?: string } | undefined)?.focus;
@@ -107,7 +109,7 @@ export function SettingsScreen() {
   };
 
   return (
-    <ScrollView ref={scrollRef} style={ui.screen} contentContainerStyle={ui.screenContent} keyboardShouldPersistTaps="handled">
+    <ScrollView ref={scrollRef} style={ui.screen} contentContainerStyle={[ui.screenContent, { paddingBottom: 48 + insets.bottom }]} keyboardShouldPersistTaps="handled">
       {/* ---- Profile ---- */}
       <Section title="Profile" right={<Button title="Edit" small kind="ghost" onPress={() => setProfileSheet(true)} />}>
         <Card>

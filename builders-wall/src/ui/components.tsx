@@ -14,6 +14,7 @@ import {
   type TextStyle,
   type ViewStyle,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, fonts, radius, space, TAP } from './theme';
 import { addDays, formatTime, friendlyTime, parseTime, prettyDay, type DayKey } from '../core/dates';
 import { tapHaptic } from './feedback';
@@ -48,11 +49,12 @@ export function T({
 // ---- Layout ----------------------------------------------------------------
 
 export function Screen({ children, scroll = true }: { children: React.ReactNode; scroll?: boolean }) {
+  const insets = useSafeAreaInsets();
   if (!scroll) return <View style={styles.screen}>{children}</View>;
   return (
     <ScrollView
       style={styles.screen}
-      contentContainerStyle={styles.screenContent}
+      contentContainerStyle={[styles.screenContent, { paddingBottom: 48 + insets.bottom }]}
       keyboardShouldPersistTaps="handled"
     >
       {children}
@@ -302,11 +304,12 @@ export function Sheet({
   onClose: () => void;
   children: React.ReactNode;
 }) {
+  const insets = useSafeAreaInsets();
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose} statusBarTranslucent>
       <KeyboardAvoidingView behavior="padding" style={styles.sheetBackdrop}>
         <Pressable style={StyleSheet.absoluteFill} onPress={onClose} accessibilityLabel="Close" />
-        <View style={styles.sheet}>
+        <View style={[styles.sheet, { paddingBottom: space.lg + insets.bottom }]}>
           <View style={styles.sheetHead}>
             <T v="h2" style={{ flex: 1 }}>
               {title}

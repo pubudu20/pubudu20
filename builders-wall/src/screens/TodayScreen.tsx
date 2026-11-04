@@ -83,32 +83,39 @@ export function TodayScreen() {
         </Card>
       )}
 
-      {/* ---- Don't miss twice ---- */}
-      {game.warnings.map((w) => (
-        <Card key={w.habitId} style={[styles.banner, { borderColor: colors.red, backgroundColor: colors.redSoft }]}>
+      {/* ---- Don't miss twice (one card listing every habit at risk) ---- */}
+      {game.warnings.length > 0 && (
+        <Card style={[styles.banner, { borderColor: colors.red, backgroundColor: colors.redSoft }]}>
           <T v="bodyBold" style={{ color: colors.red }}>
             ⚠ Don’t miss twice
           </T>
-          <T v="small" style={{ color: colors.text }}>
-            {habitName(w.habitId)} was missed on {prettyDay(w.missedDay)}. Do it today to keep the wall standing.
+          <T v="small" style={{ color: colors.text, marginBottom: space.xs }}>
+            Missed last time — do these today to keep the wall standing.
           </T>
-          <Row style={{ marginTop: space.sm, gap: space.sm }}>
-            <Button
-              title={`Use freeze (${game.freezeTokens})`}
-              kind="ice"
-              small
-              disabled={game.freezeTokens < 1}
-              onPress={() => setCheck(w.missedDay, w.habitId, 'freeze')}
-              accessibilityLabel={`Use a streak freeze for ${habitName(w.habitId)} on ${prettyDay(w.missedDay)}`}
-            />
-            {game.freezeTokens < 1 && (
-              <T v="small" style={{ flex: 1 }}>
-                Earn freezes with 5 perfect days in a week.
+          {game.warnings.map((w) => (
+            <Row key={w.habitId} style={{ minHeight: 44, gap: space.sm }}>
+              <T v="body" style={{ flex: 1 }} numberOfLines={1}>
+                {habitName(w.habitId)}
+                <Text style={{ color: colors.muted, fontSize: 13 }}>{`  · ${prettyDay(w.missedDay)}`}</Text>
               </T>
-            )}
-          </Row>
+              {game.freezeTokens > 0 && (
+                <Button
+                  title="Freeze 🧊"
+                  kind="ice"
+                  small
+                  onPress={() => setCheck(w.missedDay, w.habitId, 'freeze')}
+                  accessibilityLabel={`Use a streak freeze for ${habitName(w.habitId)} on ${prettyDay(w.missedDay)}`}
+                />
+              )}
+            </Row>
+          ))}
+          <T v="small" style={{ marginTop: space.xs }}>
+            {game.freezeTokens > 0
+              ? `${game.freezeTokens} freeze${game.freezeTokens === 1 ? '' : 's'} available — a freeze saves the streak.`
+              : 'No freezes yet — earn one with 5 perfect days in a Mon–Sun week.'}
+          </T>
         </Card>
-      ))}
+      )}
 
       {/* ---- Habits ---- */}
       <Section
